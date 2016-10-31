@@ -23,6 +23,10 @@ exports.configure = function (app) {
 		res.render('addthing.jade', {user: req.user, thingname:"", error:null});
 	});
 	
+	/** jaehee modified
+	 * 2016.10.31
+	 * 
+	 */ 
 	app.post('/addthing', auth.ensureAuthenticated, function(req, res){
 		var thingname = req.body.thingname;
 		var args = "{\"thingname\":\""+thingname+"\"}";
@@ -36,6 +40,10 @@ exports.configure = function (app) {
 		});
 	});
 	
+	/** jaehee modified
+	 * 2016.10.31
+	 * 
+	 */ 
 	app.get('/delthing/:thingname', auth.ensureAuthenticated, function(req, res){
 		var thingname = req.params.thingname;
 		var args = "{\"thingname\":\""+thingname+"\"}";
@@ -48,7 +56,10 @@ exports.configure = function (app) {
 		});
 	});
 	
-
+	/** jaehee modified
+	 * 2016.10.31
+	 * 
+	 */ 
 	app.get('/thing/:thingname', auth.ensureAuthenticated, function(req, res){
 		var thingname = tdt.convertString(req.params.thingname, 'PURE_IDENTITY');
 		rest.getOperation (ds_api_address, "user/"+req.user.email+"/thing/"+thingname+"/have", null, req.user.token, null, null, function (error, response) {
@@ -86,7 +97,10 @@ exports.configure = function (app) {
 		res.render('addgroup.jade', {user: req.user, groupname:"", error:null});
 	});
 	
-
+	/** jaehee modified
+	 * 2016.10.31
+	 * 
+	 */ 
 	app.post('/addgroup', auth.ensureAuthenticated, function(req, res){
 		var groupname = req.body.groupname;
 		var args = "{\"groupname\":\""+groupname+"\"}";
@@ -338,6 +352,10 @@ exports.configure = function (app) {
 		});
 	});
 		
+	/** jaehee modified
+	 * 2016.10.31
+	 * 
+	 */ 
 	app.get('/index', auth.ensureAuthenticated, function(req, res){
 		var offset = req.param('offset', 0);
 		var count = req.param('count', 10);

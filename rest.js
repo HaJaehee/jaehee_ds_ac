@@ -42,7 +42,6 @@ exports.getOperationRequest = function (uri, operation, username, token, passwor
 	};
 };
 
-
 exports.authenticate = function (username, password, callback) {
 	
 	var operationReq = exports.getOperationRequest(ds_api_address, "oauth/token", username, null, password);
@@ -63,7 +62,6 @@ exports.authenticate = function (username, password, callback) {
 		}
 	});
 };
-
 
 exports.postOperation = function (uri, operation, username, token, password, args, callback) {
 	if (operation === null) {
@@ -97,7 +95,6 @@ exports.postOperation = function (uri, operation, username, token, password, arg
 	
 	
 };
-
 
 exports.getOperation = function (uri, operation, username, token, password, args, callback) {
 	if (operation === null) {
