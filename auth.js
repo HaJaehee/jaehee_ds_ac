@@ -7,7 +7,7 @@ var request = require('request');
 
 var config = require('./conf.json');
 
-var ds_api_address = config.DS_API_ADDRESS;
+var epcis_ac_api_address = config.EPCIS_AC_API_ADDRESS;
 
 exports.configure = function (login_url, logout_url, app) {
 	passport.serializeUser(function(user, callback) {
@@ -65,7 +65,7 @@ exports.configure = function (login_url, logout_url, app) {
 	
 	app.post('/signup', function (req, res, next) {
 		var args = 'username='+req.body.username+'&password='+req.body.password;
-		rest.postOperation(ds_api_address, "signup", null, null, null, args ,function(error, response){
+		rest.postOperation(epcis_ac_api_address, "signup", null, null, null, args ,function(error, response){
 			if(error)
 			{
 				console.log(error);

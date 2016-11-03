@@ -1,7 +1,7 @@
 var 	auth = require('./auth');
 var		rest = require('./rest');
 var		config = require('./conf.json');
-var		ds_api_address = config.DS_API_ADDRESS;
+var		epcis_ac_api_address = config.EPCIS_AC_API_ADDRESS;
 var		tdt =  require('./tdt/tdt');
 
 exports.configure = function (app) {	
@@ -39,7 +39,7 @@ exports.configure = function (app) {
 		var epcisname = req.body.epcisname;
 		var args = "{\"epcisname\":\""+epcisname+"\"}";
 		
-		rest.postOperation(ds_api_address, "user/"+req.user.email+"/possess", null, req.user.token, null, args, function (error, response) {
+		rest.postOperation(epcis_ac_api_address, "user/"+req.user.email+"/possess", null, req.user.token, null, args, function (error, response) {
 			if (error) {
 				res.render('addepcis.jade', { user: req.user, epcisname: epcisname, error: error });
 			} else {
@@ -52,7 +52,7 @@ exports.configure = function (app) {
 		var thingname = req.body.thingname;
 		var args = "{\"thingname\":\""+thingname+"\"}";
 		
-		rest.postOperation(ds_api_address, "user/"+req.user.email+"/own", null, req.user.token, null, args, function (error, response) {
+		rest.postOperation(epcis_ac_api_address, "user/"+req.user.email+"/own", null, req.user.token, null, args, function (error, response) {
 			if (error) {
 				res.render('addthing.jade', { user: req.user, thingname: thingname, error: error });
 			} else {
@@ -68,7 +68,7 @@ exports.configure = function (app) {
 	app.get('/delepcis/:epcisname', auth.ensureAuthenticated, function(req, res){
 		var epcisname = req.params.epcisname;
 		var args = "{\"epcisname\":\""+epcisname+"\",\"username\":\""+req.user.email+"\"}";
-		rest.delOperation(ds_api_address, "delepcis/"+epcisname, null, req.user.token, null, args, function (error, response) {
+		rest.delOperation(epcis_ac_api_address, "delepcis/"+epcisname, null, req.user.token, null, args, function (error, response) {
 			if (error) {
 				res.render('error.jade', { user: req.user, epcisname: epcisname, error: error });
 			} else {
@@ -80,7 +80,7 @@ exports.configure = function (app) {
 	app.get('/delthing/:thingname', auth.ensureAuthenticated, function(req, res){
 		var thingname = req.params.thingname;
 		var args = "{\"thingname\":\""+thingname+"\"}";
-		rest.delOperation(ds_api_address, "thing/"+thingname, null, req.user.token, null, args, function (error, response) {
+		rest.delOperation(epcis_ac_api_address, "thing/"+thingname, null, req.user.token, null, args, function (error, response) {
 			if (error) {
 				res.render('error.jade', { user: req.user, thingname: thingname, error: error });
 			} else {
@@ -95,7 +95,7 @@ exports.configure = function (app) {
 	 */ 
 	app.get('/epcis/:epcisname', auth.ensureAuthenticated, function(req, res){
 		var epcisname = req.params.epcisname;
-		rest.getOperation (ds_api_address, "user/"+req.user.email+"/epcis/"+epcisname+"/possess", null, req.user.token, null, null, function (error, response) {
+		rest.getOperation (epcis_ac_api_address, "user/"+req.user.email+"/epcis/"+epcisname+"/possess", null, req.user.token, null, null, function (error, response) {
 			if (error) {
 				res.render('error.jade', { user: req.user, epcisname: epcisname, error: error });
 			} else {
@@ -111,7 +111,7 @@ exports.configure = function (app) {
 	
 	app.get('/thing/:thingname', auth.ensureAuthenticated, function(req, res){
 		var thingname = tdt.convertString(req.params.thingname, 'PURE_IDENTITY');
-		rest.getOperation (ds_api_address, "user/"+req.user.email+"/thing/"+thingname+"/have", null, req.user.token, null, null, function (error, response) {
+		rest.getOperation (epcis_ac_api_address, "user/"+req.user.email+"/thing/"+thingname+"/have", null, req.user.token, null, null, function (error, response) {
 			if (error) {
 				res.render('error.jade', { user: req.user, thingname: thingname, error: error });
 			} else {
@@ -127,6 +127,26 @@ exports.configure = function (app) {
 					res.render('editthing.jade', { user: req.user, thingname: thingname, services: response.services, encodeservices: encodeServices, error: error });
 					
 				}
+			}
+		});
+	});
+	
+	/** Jaehee modified
+	 * 2016.11.04
+	 * To do.
+	 */ 
+	app.post('/epcis/:epcisname', auth.ensureAuthenticated, function(req, res){
+		var raw_epcisevent = req.body.epcisevent;
+		var epcisevent = raw_epcisevent.replace(/\n/g, "").replace(/\r/g, "").replace(/\t/g, " ").replace(/\"/g,"<>");
+		console.log(epcisevent);
+		var epcisname = req.params.epcisname;
+		var args = "{\"epcisevent\":\""+epcisevent+"\"}";
+
+		rest.postOperation(epcis_ac_api_address, "user/"+req.user.email+"/epcis/"+epcisname+"/capture", null, req.user.token, null, args, function (error, response) {
+			if (error) {
+				res.render('editepcis.jade', { user: req.user, epcisname: epcisname, error: error });
+			} else {
+				res.redirect('/index');
 			}
 		});
 	});
@@ -150,7 +170,7 @@ exports.configure = function (app) {
 		var groupname = req.body.groupname;
 		var args = "{\"groupname\":\""+groupname+"\"}";
 		
-		rest.postOperation(ds_api_address, "user/"+req.user.email+"/manage", null, req.user.token, null, args, function (error, response) {
+		rest.postOperation(epcis_ac_api_address, "user/"+req.user.email+"/manage", null, req.user.token, null, args, function (error, response) {
 			if (error) {
 				res.render('addgroup.jade', {user: req.user, groupname:"", error: error});
 			} else {
@@ -164,7 +184,7 @@ exports.configure = function (app) {
 	app.get('/delgroup/:groupname', auth.ensureAuthenticated, function(req, res){
 		var groupname = req.params.groupname;
 		var args = "{\"groupname\":\""+groupname+"\"}";
-		rest.postOperation(ds_api_address, "user/"+req.user.email+"/unmanage", null, req.user.token, null, args, function (error, response) {
+		rest.postOperation(epcis_ac_api_address, "user/"+req.user.email+"/unmanage", null, req.user.token, null, args, function (error, response) {
 			if (error) {
 				res.render('error.jade', { user: req.user, groupname: groupname, error: error });
 			} else {
@@ -175,7 +195,7 @@ exports.configure = function (app) {
 	
 	app.get('/group/:groupname', auth.ensureAuthenticated, function(req, res){
 		var groupname = req.params.groupname;
-		rest.getOperation(ds_api_address, "group/"+groupname+"/join", null, req.user.token, null, null, function (error, response) {
+		rest.getOperation(epcis_ac_api_address, "group/"+groupname+"/join", null, req.user.token, null, null, function (error, response) {
 			res.render('editgroup.jade', { user: req.user, groupname: groupname, users: response.users, error: error });
 		});
 	});
@@ -183,7 +203,7 @@ exports.configure = function (app) {
 
 	app.get('/group/:groupname/join', auth.ensureAuthenticated, function(req, res){
 		var groupname = req.params.groupname;
-		rest.getOperation(ds_api_address, "group/"+groupname+"/other", null, req.user.token, null, null, function (error, response) {
+		rest.getOperation(epcis_ac_api_address, "group/"+groupname+"/other", null, req.user.token, null, null, function (error, response) {
 			res.render('adduser.jade', { user: req.user, groupname: groupname, others: response.others, error: error });
 		});
 	});
@@ -192,7 +212,7 @@ exports.configure = function (app) {
 		var groupname = req.params.groupname;
 		var username = req.body.username;
 		var args = "{\"username\":\""+username+"\"}";
-		rest.postOperation(ds_api_address, "group/"+groupname+"/join", null, req.user.token, null, args, function (error, response) {
+		rest.postOperation(epcis_ac_api_address, "group/"+groupname+"/join", null, req.user.token, null, args, function (error, response) {
 			if (error) {
 				res.render('error.jade', { user: req.user, groupname: groupname, error: error });
 			} else {
@@ -205,7 +225,7 @@ exports.configure = function (app) {
 		var groupname = req.params.groupname;
 		var username = req.params.username;
 		var args = "{\"username\":\""+username+"\"}";
-		rest.postOperation(ds_api_address, "group/"+groupname+"/unjoin", null, req.user.token, null, args, function (error, response) {
+		rest.postOperation(epcis_ac_api_address, "group/"+groupname+"/unjoin", null, req.user.token, null, args, function (error, response) {
 			if (error) {
 				res.render('error.jade', { user: req.user, groupname: groupname, error: error });
 			} else {
@@ -216,7 +236,7 @@ exports.configure = function (app) {
 	
 	app.get('/service/:servicename', auth.ensureAuthenticated, function(req, res){
 		var servicename = req.params.servicename;
-		rest.getOperation(ds_api_address, "service/"+encodeURIComponent(req.params.servicename)+"/grant", null, req.user.token, null, null, function (error, response) {
+		rest.getOperation(epcis_ac_api_address, "service/"+encodeURIComponent(req.params.servicename)+"/grant", null, req.user.token, null, null, function (error, response) {
 			var strArray = servicename.split(':');
 			var pi = tdt.convertString(strArray[0], 'PURE_IDENTITY');
 			res.render('editservice.jade', { user: req.user,  thingname: pi, servicename: servicename, encodeServicename: encodeURIComponent(servicename), groups: response.groups, users: response.users, error: error });
@@ -226,7 +246,7 @@ exports.configure = function (app) {
 
 	app.get('/service/:servicename/view', auth.ensureAuthenticated, function(req, res){
 		var servicename = req.params.servicename;
-		rest.getOperation(ds_api_address, "authority/service/"+encodeURIComponent(servicename), null, req.user.token, null, null, function (error, response) {
+		rest.getOperation(epcis_ac_api_address, "authority/service/"+encodeURIComponent(servicename), null, req.user.token, null, null, function (error, response) {
 			if(error){
 				res.render('error.jade', { user: req.user, servicename: servicename, error: error });
 			} else {
@@ -240,7 +260,7 @@ exports.configure = function (app) {
 	app.post('/service/:servicename/observeOn', auth.ensureAuthenticated, function(req, res){
 		var servicename = req.params.servicename;
 		var args = "{\"username\":\""+req.user.email+"\"}";
-		rest.postOperation(ds_api_address, "service/"+encodeURIComponent(servicename)+"/observe_on", null, req.user.token, null, args, function (error, response) {
+		rest.postOperation(epcis_ac_api_address, "service/"+encodeURIComponent(servicename)+"/observe_on", null, req.user.token, null, args, function (error, response) {
 			if(error){
 				res.render('error.jade', { user: req.user, servicename: servicename, error: error });
 			}
@@ -251,7 +271,7 @@ exports.configure = function (app) {
 	app.post('/service/:servicename/observeOff', auth.ensureAuthenticated, function(req, res){
 		var servicename = req.params.servicename;
 		var args = "{\"username\":\""+req.user.email+"\"}";
-		rest.postOperation(ds_api_address, "service/"+encodeURIComponent(servicename)+"/observe_off", null, req.user.token, null, args, function (error, response) {
+		rest.postOperation(epcis_ac_api_address, "service/"+encodeURIComponent(servicename)+"/observe_off", null, req.user.token, null, args, function (error, response) {
 			if(error){
 				res.render('error.jade', { user: req.user, servicename: servicename, error: error });
 			}
@@ -261,7 +281,7 @@ exports.configure = function (app) {
 	
 	app.get('/service/:servicename/grant', auth.ensureAuthenticated, function(req, res){
 		var servicename = req.params.servicename;
-		rest.getOperation(ds_api_address, "service/"+encodeURIComponent(servicename)+"/other", null, req.user.token, null, null, function (error, response) {
+		rest.getOperation(epcis_ac_api_address, "service/"+encodeURIComponent(servicename)+"/other", null, req.user.token, null, null, function (error, response) {
 			res.render('grantgroup.jade', { user: req.user,  servicename: servicename, encodeServicename: encodeURIComponent(servicename), otherGroups: response.otherGroups, otherUsers: response.otherUsers, error: error });
 		});
 	});
@@ -278,7 +298,7 @@ exports.configure = function (app) {
 			args = "{\"groupname\":\""+grantname+"\"}";
 		}
 		
-		rest.postOperation(ds_api_address, "service/"+encodeURIComponent(servicename)+"/read", null, req.user.token, null, args, function (error, response) {
+		rest.postOperation(epcis_ac_api_address, "service/"+encodeURIComponent(servicename)+"/read", null, req.user.token, null, args, function (error, response) {
 			if (error) {
 				res.render('error.jade', { user: req.user, grantname: grantname, error: error });
 			} else {
@@ -290,7 +310,7 @@ exports.configure = function (app) {
 	app.get('/service/:servicename/grant/:grantname/capability', auth.ensureAuthenticated, function(req, res){
 		var servicename = req.params.servicename;
 		var grantname = req.params.grantname;
-		rest.getOperation(ds_api_address, "service/"+encodeURIComponent(servicename)+"/grant/"+grantname+"/capability", null, req.user.token, null, null, function (error, response) {
+		rest.getOperation(epcis_ac_api_address, "service/"+encodeURIComponent(servicename)+"/grant/"+grantname+"/capability", null, req.user.token, null, null, function (error, response) {
 			res.render('editcapa.jade', { user: req.user, grantname: grantname, encodeGrantname: encodeURIComponent(grantname), servicename: servicename, encodeServicename: encodeURIComponent(servicename), read: response.read, write: response.write, error: error });
 		});
 	});
@@ -306,7 +326,7 @@ exports.configure = function (app) {
 			args = "{\"groupname\":\""+grantname+"\"}";
 		}
 		
-		rest.postOperation(ds_api_address, "service/"+encodeURIComponent(servicename)+"/ungrant", null, req.user.token, null, args, function (error, response) {
+		rest.postOperation(epcis_ac_api_address, "service/"+encodeURIComponent(servicename)+"/ungrant", null, req.user.token, null, args, function (error, response) {
 			if (error) {
 				res.render('error.jade', { user: req.user, servicename: servicename, error: error });
 			} else {
@@ -327,7 +347,7 @@ exports.configure = function (app) {
 			args = "{\"groupname\":\""+grantname+"\"}";
 		}
 		
-		rest.postOperation(ds_api_address, "service/"+encodeURIComponent(servicename)+"/read", null, req.user.token, null, args, function (error, response) {
+		rest.postOperation(epcis_ac_api_address, "service/"+encodeURIComponent(servicename)+"/read", null, req.user.token, null, args, function (error, response) {
 			if (error) {
 				res.render('error.jade', { user: req.user, grantname: grantname, error: error });
 			} else {
@@ -347,7 +367,7 @@ exports.configure = function (app) {
 			args = "{\"groupname\":\""+grantname+"\"}";
 		}
 		
-		rest.postOperation(ds_api_address, "service/"+encodeURIComponent(servicename)+"/unread", null, req.user.token, null, args, function (error, response) {
+		rest.postOperation(epcis_ac_api_address, "service/"+encodeURIComponent(servicename)+"/unread", null, req.user.token, null, args, function (error, response) {
 			if (error) {
 				res.render('error.jade', { user: req.user, servicename: servicename, error: error });
 			} else {
@@ -368,7 +388,7 @@ exports.configure = function (app) {
 			args = "{\"groupname\":\""+grantname+"\"}";
 		}
 		
-		rest.postOperation(ds_api_address, "service/"+encodeURIComponent(servicename)+"/write", null, req.user.token, null, args, function (error, response) {
+		rest.postOperation(epcis_ac_api_address, "service/"+encodeURIComponent(servicename)+"/write", null, req.user.token, null, args, function (error, response) {
 			if (error) {
 				res.render('error.jade', { user: req.user, grantname: grantname, error: error });
 			} else {
@@ -388,7 +408,7 @@ exports.configure = function (app) {
 			args = "{\"groupname\":\""+grantname+"\"}";
 		}
 		
-		rest.postOperation(ds_api_address, "service/"+encodeURIComponent(servicename)+"/unwrite", null, req.user.token, null, args, function (error, response) {
+		rest.postOperation(epcis_ac_api_address, "service/"+encodeURIComponent(servicename)+"/unwrite", null, req.user.token, null, args, function (error, response) {
 			if (error) {
 				res.render('error.jade', { user: req.user, servicename: servicename, error: error });
 			} else {
@@ -404,14 +424,14 @@ exports.configure = function (app) {
 	app.get('/index', auth.ensureAuthenticated, function(req, res){
 		var offset = req.param('offset', 0);
 		var count = req.param('count', 10);
-		rest.getOperation(ds_api_address, "user/"+req.user.email+"/possess", null, req.user.token, null, null, function (error, response) {
+		rest.getOperation(epcis_ac_api_address, "user/"+req.user.email+"/possess", null, req.user.token, null, null, function (error, response) {
 			var epciss = null;
 			if (!error && response !== null && response.epciss.length !== null && response.epciss !== null) { 
 				epciss = response.epciss;
 			} else if (!error) {
 				error = "invalid JSON returned from FindZones";
 			}
-			rest.getOperation(ds_api_address, "user/"+req.user.email+"/own", null, req.user.token, null, null, function (error, response) {
+			rest.getOperation(epcis_ac_api_address, "user/"+req.user.email+"/own", null, req.user.token, null, null, function (error, response) {
 				var total = null;
 				var things = null;
 				if (!error && response !== null && response.things.length !== null && response.things !== null) { 
@@ -420,7 +440,7 @@ exports.configure = function (app) {
 				} else if (!error) {
 					error = "invalid JSON returned from FindZones";
 				}
-				rest.getOperation (ds_api_address, "user/"+req.user.email+"/manage", null, req.user.token, null, null, function (error, response) {
+				rest.getOperation (epcis_ac_api_address, "user/"+req.user.email+"/manage", null, req.user.token, null, null, function (error, response) {
 					var groups = null;
 					if (!error && response !== null && response.groups.length !== null && response.groups !== null) { 
 						groups = response.groups;

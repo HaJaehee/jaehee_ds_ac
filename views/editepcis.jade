@@ -9,7 +9,15 @@ block mainContent
 		
 	h2 Showing your EPCIS: #{epcisname}
 		
-	p What to show below??
+	p 
+	form(method='post')
+		div(class='listRow')
+			label Enter the EPCIS event:
+			p
+			textarea(name='epcisevent', value='')
+	
+		div.formFooter
+			input(type='submit', value='Capture')
 		
 		
 		

@@ -2,7 +2,7 @@ var request = require('request');
 
 var config = require('./conf.json');
 
-var ds_api_address = config.DS_API_ADDRESS;
+var epcis_ac_api_address = config.EPCIS_AC_API_ADDRESS;
 
 exports.getOperationRequest = function (uri, operation, username, token, password) {
 	var uri_base = uri;
@@ -44,7 +44,7 @@ exports.getOperationRequest = function (uri, operation, username, token, passwor
 
 exports.authenticate = function (username, password, callback) {
 	
-	var operationReq = exports.getOperationRequest(ds_api_address, "oauth/token", username, null, password);
+	var operationReq = exports.getOperationRequest(epcis_ac_api_address, "oauth/token", username, null, password);
 	operationReq.body = 'grant_type=password&username='+username+'&password='+password;
 	console.log(operationReq);
 	
@@ -69,6 +69,7 @@ exports.postOperation = function (uri, operation, username, token, password, arg
 	}
 
 	var operationReq = exports.getOperationRequest(uri, operation, username, token, password);
+	console.log(JSON.stringify(args));
 	operationReq.body = args;
 	console.log(operationReq);
 	

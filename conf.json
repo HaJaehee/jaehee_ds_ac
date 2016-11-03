@@ -1,5 +1,5 @@
 {
    "PORT": 3000,
-   "DS_API_ADDRESS": "http://127.0.0.1:3001",
+   "EPCIS_AC_API_ADDRESS": "http://127.0.0.1:3001",
    "DNS_ADDRESS": "8.8.8.8"
 }
