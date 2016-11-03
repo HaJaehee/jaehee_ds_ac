@@ -7,7 +7,7 @@ var		tdt =  require('./tdt/tdt');
 exports.configure = function (app) {	
 	app.get('/css/', function (req, res) {
 		res.contentType('text/css');
-		res.sendfile(__dirname + '/css/DiscoveryService.css');
+		res.sendfile(__dirname + '/css/EPCIS_AC.css');
 	});
 	
 	app.get('/chart/', function (req, res) {
@@ -19,14 +19,35 @@ exports.configure = function (app) {
 		res.send({result:tdt.convertString(req.params.thingname, req.params.type)});
 	});
 	
+	/** Jaehee modified
+	 * 2016.10.31
+	 * 
+	 */
+	app.get('/addepcis', auth.ensureAuthenticated, function(req, res){
+		res.render('addepcis.jade', {user: req.user, epcisname:"", error:null});
+	});
+	
 	app.get('/addthing', auth.ensureAuthenticated, function(req, res){
 		res.render('addthing.jade', {user: req.user, thingname:"", error:null});
 	});
 	
-	/** jaehee modified
+	/** Jaehee modified
 	 * 2016.10.31
 	 * 
 	 */ 
+	app.post('/addepcis', auth.ensureAuthenticated, function(req, res){
+		var epcisname = req.body.epcisname;
+		var args = "{\"epcisname\":\""+epcisname+"\"}";
+		
+		rest.postOperation(ds_api_address, "user/"+req.user.email+"/own", null, req.user.token, null, args, function (error, response) {
+			if (error) {
+				res.render('addepcis.jade', { user: req.user, epcisname: epcisname, error: error });
+			} else {
+				res.redirect('/index');
+			}
+		});
+	});
+	
 	app.post('/addthing', auth.ensureAuthenticated, function(req, res){
 		var thingname = req.body.thingname;
 		var args = "{\"thingname\":\""+thingname+"\"}";
@@ -40,10 +61,22 @@ exports.configure = function (app) {
 		});
 	});
 	
-	/** jaehee modified
+	/** Jaehee modified
 	 * 2016.10.31
 	 * 
 	 */ 
+	app.get('/delepcis/:epcisname', auth.ensureAuthenticated, function(req, res){
+		var epcisname = req.params.epcisname;
+		var args = "{\"epcisname\":\""+epcisname+"\"}";
+		rest.delOperation(ds_api_address, "epcis/"+epcisname, null, req.user.token, null, args, function (error, response) {
+			if (error) {
+				res.render('error.jade', { user: req.user, epcisname: epcisname, error: error });
+			} else {
+				res.redirect('/index');
+			}
+		});
+	});
+	
 	app.get('/delthing/:thingname', auth.ensureAuthenticated, function(req, res){
 		var thingname = req.params.thingname;
 		var args = "{\"thingname\":\""+thingname+"\"}";
@@ -56,10 +89,26 @@ exports.configure = function (app) {
 		});
 	});
 	
-	/** jaehee modified
+	/** Jaehee modified
 	 * 2016.10.31
 	 * 
 	 */ 
+	app.get('/epcis/:epcisname', auth.ensureAuthenticated, function(req, res){
+		var epcisname = tdt.convertString(req.params.epcisname, 'PURE_IDENTITY');
+		rest.getOperation (ds_api_address, "user/"+req.user.email+"/epcis/"+epcisname+"/possess", null, req.user.token, null, null, function (error, response) {
+			if (error) {
+				res.render('error.jade', { user: req.user, epcisname: epcisname, error: error });
+			} else {
+				if(response.possessor === 'yes'){
+					res.render('editepcis.jade', { user: req.user, epcisname: epcisname, possessor: response.possessor, error: error });
+				} else {
+					res.render('editepcis.jade', { user: req.user, epcisname: epcisname, error: error });
+					
+				}
+			}
+		});
+	});
+	
 	app.get('/thing/:thingname', auth.ensureAuthenticated, function(req, res){
 		var thingname = tdt.convertString(req.params.thingname, 'PURE_IDENTITY');
 		rest.getOperation (ds_api_address, "user/"+req.user.email+"/thing/"+thingname+"/have", null, req.user.token, null, null, function (error, response) {
@@ -97,10 +146,6 @@ exports.configure = function (app) {
 		res.render('addgroup.jade', {user: req.user, groupname:"", error:null});
 	});
 	
-	/** jaehee modified
-	 * 2016.10.31
-	 * 
-	 */ 
 	app.post('/addgroup', auth.ensureAuthenticated, function(req, res){
 		var groupname = req.body.groupname;
 		var args = "{\"groupname\":\""+groupname+"\"}";
@@ -352,7 +397,7 @@ exports.configure = function (app) {
 		});
 	});
 		
-	/** jaehee modified
+	/** Jaehee modified
 	 * 2016.10.31
 	 * 
 	 */ 
@@ -380,8 +425,12 @@ exports.configure = function (app) {
 		});
 	});
 	
-	app.get('/:offset?/:count?', auth.ensureAuthenticated, function(req, res){
-		res.render('switch.jade', { user: req.user });
+	/** Jaehee modified
+	 * 2016.10.31
+	 * 
+	 */ 
+	app.get('/:offset?/:count?', function(req, res){
+		res.redirect('/index');
 	});
 	
 

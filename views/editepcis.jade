@@ -1,0 +1,15 @@
+extends layout
+
+block mainContent
+	p
+		a(href='/index', class="button small pink") &laquo;  Back to index
+
+	if error
+		p.error Something went terribly bad: #{error}
+		
+	h2 Showing your EPCIS: #{epcisname}
+		
+	p What to show below??
+		
+		
+		

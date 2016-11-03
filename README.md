@@ -1,6 +1,6 @@
 
 
-# DiscoveryService
+# EPCIS Access Control
 
 
 
@@ -9,7 +9,9 @@
 
 
 ## Developing
-
+EPCIS Access Control Based on DiscoveryService Access Control.
+Jaehee Ha modified from DiscoveryService Access Control to EPCIS Access Control.
+2016.11.03
 
 
 ### Tools

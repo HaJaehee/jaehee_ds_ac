@@ -1,6 +1,6 @@
 {
-  "name": "DiscoveryService",
-  "version": "0.0.1",
+  "name": "EPCIS Access Control",
+  "version": "0.0.2",
   "private": true,
   "scripts": {
     "start": "node app.js"
