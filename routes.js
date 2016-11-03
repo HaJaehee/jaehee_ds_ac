@@ -39,7 +39,7 @@ exports.configure = function (app) {
 		var epcisname = req.body.epcisname;
 		var args = "{\"epcisname\":\""+epcisname+"\"}";
 		
-		rest.postOperation(ds_api_address, "user/"+req.user.email+"/own", null, req.user.token, null, args, function (error, response) {
+		rest.postOperation(ds_api_address, "user/"+req.user.email+"/possess", null, req.user.token, null, args, function (error, response) {
 			if (error) {
 				res.render('addepcis.jade', { user: req.user, epcisname: epcisname, error: error });
 			} else {
@@ -67,8 +67,8 @@ exports.configure = function (app) {
 	 */ 
 	app.get('/delepcis/:epcisname', auth.ensureAuthenticated, function(req, res){
 		var epcisname = req.params.epcisname;
-		var args = "{\"epcisname\":\""+epcisname+"\"}";
-		rest.delOperation(ds_api_address, "epcis/"+epcisname, null, req.user.token, null, args, function (error, response) {
+		var args = "{\"epcisname\":\""+epcisname+"\",\"username\":\""+req.user.email+"\"}";
+		rest.delOperation(ds_api_address, "delepcis/"+epcisname, null, req.user.token, null, args, function (error, response) {
 			if (error) {
 				res.render('error.jade', { user: req.user, epcisname: epcisname, error: error });
 			} else {
@@ -94,7 +94,7 @@ exports.configure = function (app) {
 	 * 
 	 */ 
 	app.get('/epcis/:epcisname', auth.ensureAuthenticated, function(req, res){
-		var epcisname = tdt.convertString(req.params.epcisname, 'PURE_IDENTITY');
+		var epcisname = req.params.epcisname;
 		rest.getOperation (ds_api_address, "user/"+req.user.email+"/epcis/"+epcisname+"/possess", null, req.user.token, null, null, function (error, response) {
 			if (error) {
 				res.render('error.jade', { user: req.user, epcisname: epcisname, error: error });
@@ -404,23 +404,31 @@ exports.configure = function (app) {
 	app.get('/index', auth.ensureAuthenticated, function(req, res){
 		var offset = req.param('offset', 0);
 		var count = req.param('count', 10);
-		rest.getOperation(ds_api_address, "user/"+req.user.email+"/own", null, req.user.token, null, null, function (error, response) {
-			var total = null;
-			var things = null;
-			if (!error && response !== null && response.things.length !== null && response.things !== null) { 
-				total = response.things.length;
-				things = response.things;
+		rest.getOperation(ds_api_address, "user/"+req.user.email+"/possess", null, req.user.token, null, null, function (error, response) {
+			var epciss = null;
+			if (!error && response !== null && response.epciss.length !== null && response.epciss !== null) { 
+				epciss = response.epciss;
 			} else if (!error) {
 				error = "invalid JSON returned from FindZones";
 			}
-			rest.getOperation (ds_api_address, "user/"+req.user.email+"/manage", null, req.user.token, null, null, function (error, response) {
-				var groups = null;
-				if (!error && response !== null && response.groups.length !== null && response.groups !== null) { 
-					groups = response.groups;
+			rest.getOperation(ds_api_address, "user/"+req.user.email+"/own", null, req.user.token, null, null, function (error, response) {
+				var total = null;
+				var things = null;
+				if (!error && response !== null && response.things.length !== null && response.things !== null) { 
+					total = response.things.length;
+					things = response.things;
 				} else if (!error) {
 					error = "invalid JSON returned from FindZones";
 				}
-				res.render('index.jade', { user: req.user, total: total, offset: offset, count: count, things: things, groups: groups, error: error });
+				rest.getOperation (ds_api_address, "user/"+req.user.email+"/manage", null, req.user.token, null, null, function (error, response) {
+					var groups = null;
+					if (!error && response !== null && response.groups.length !== null && response.groups !== null) { 
+						groups = response.groups;
+					} else if (!error) {
+						error = "invalid JSON returned from FindZones";
+					}
+					res.render('index.jade', { user: req.user, total: total, offset: offset, count: count, epciss:epciss, things: things, groups: groups, error: error });
+				});
 			});
 		});
 	});
