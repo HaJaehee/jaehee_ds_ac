@@ -1,0 +1,22 @@
+extends layout
+
+block mainContent
+	h2 Subscribing EPCIS #{epcisname}
+	
+	p
+		a(href='/index', class="button small pink") &laquo;  Back to index
+	
+	if error
+		p.error Something went terribly bad: #{error}
+		
+	each epcissubscriber in epcissubscribers
+		li.listRow= epcissubscriber + ' '
+			a(href='/unsubsepcis/epcis/#{epcisname}/user/#{epcissubscriber}', onclick='return confirm(\'Are you sure that you let this user unsubscribe this epcis?\');', class='button small  delete') unsubscribe 
+	
+	form(method='post')
+		div(class='listRow')
+			label Add #{epcisname} EPCIS subscriber:
+				input(name='epcissubscribername', value='#{epcissubscribername}')
+	
+		div.formFooter
+			input(type='submit', value='Add subscriber')

@@ -11,6 +11,7 @@
 ## Developing
 EPCIS Access Control Based on DiscoveryService Access Control.
 Jaehee Ha modified from DiscoveryService Access Control to EPCIS Access Control.
+lovesm135@kaist.ac.kr
 2016.11.03
 
 

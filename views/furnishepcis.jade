@@ -1,0 +1,22 @@
+extends layout
+
+block mainContent
+	h2 Furnishing EPCIS #{epcisname}
+	
+	p
+		a(href='/index', class="button small pink") &laquo;  Back to index
+	
+	if error
+		p.error Something went terribly bad: #{error}
+		
+	each epcisfurnisher in epcisfurnishers
+		li.listRow= epcisfurnisher + ' '
+			a(href='/unfurnepcis/epcis/#{epcisname}/user/#{epcisfurnisher}', onclick='return confirm(\'Are you sure that you let this user unfurnish this epcis?\');', class='button small  delete') unfurnish 
+	
+	form(method='post')
+		div(class='listRow')
+			label Add #{epcisname} EPCIS furnisher:
+				input(name='epcisfurnishername', value='#{epcisfurnishername}')
+	
+		div.formFooter
+			input(type='submit', value='Add furnisher')

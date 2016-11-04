@@ -19,7 +19,9 @@ exports.configure = function (app) {
 		res.send({result:tdt.convertString(req.params.thingname, req.params.type)});
 	});
 	
-	/** Jaehee modified
+	/** 
+	 * Jaehee created
+	 * lovesm135@kaist.ac.kr
 	 * 2016.10.31
 	 * 
 	 */
@@ -31,7 +33,9 @@ exports.configure = function (app) {
 		res.render('addthing.jade', {user: req.user, thingname:"", error:null});
 	});
 	
-	/** Jaehee modified
+	/** 
+	 * Jaehee created
+	 * lovesm135@kaist.ac.kr
 	 * 2016.10.31
 	 * 
 	 */ 
@@ -61,7 +65,131 @@ exports.configure = function (app) {
 		});
 	});
 	
-	/** Jaehee modified
+
+	
+	/** 
+	 * Jaehee created
+	 * lovesm135@kaist.ac.kr
+	 * 2016.11.05
+	 * TODO
+	 */
+	var epcisfurnishers = null;
+	app.get('/furnishepcis/:epcisname', auth.ensureAuthenticated, function(req, res){
+		var epcisname = req.params.epcisname;
+		rest.getOperation(epcis_ac_api_address, "epcis/"+epcisname+"/furnisher", null, req.user.token, null, null, function (error, response) {
+			if (!error && response !== null && response.epcisfurnishers.length !== null && response.epcisfurnishers !== null) { 
+				epcisfurnishers = response.epcisfurnishers;
+			} else if (!error) {
+				error = "invalid JSON returned from FindZones";
+			}
+			res.render('furnishepcis.jade', {user: req.user, epcisname:epcisname, epcisfurnishers:epcisfurnishers, epcisfurnishername:'', error:null});
+		});	
+	});
+	
+	/** 
+	 * Jaehee created
+	 * lovesm135@kaist.ac.kr
+	 * 2016.11.05
+	 * TODO
+	 */
+	app.post('/furnishepcis/:epcisname', auth.ensureAuthenticated, function(req, res){
+		var epcisname = req.params.epcisname;
+		var epcisfurnishername = req.body.epcisfurnishername;
+		var args = "{\"epcisfurnishername\":\""+epcisfurnishername+"\"}";
+		
+		rest.postOperation(epcis_ac_api_address, "epcis/"+epcisname+"/furnish", null, req.user.token, null, args, function (error, response) {		
+			if (error) {
+				res.render('subscribeepcis.jade', { user: req.user, epcisname: epcisname, epcisfurnishers:epcisfurnishers, epcisfurnishername:epcisfurnishername, error: error });
+			} else {
+				res.redirect('/index');
+			}
+		});	
+	});
+	
+	/** 
+	 * Jaehee created
+	 * lovesm135@kaist.ac.kr
+	 * 2016.11.04
+	 * TODO
+	 */
+	var epcissubscribers = null;
+	app.get('/subscribeepcis/:epcisname', auth.ensureAuthenticated, function(req, res){
+		var epcisname = req.params.epcisname;
+		rest.getOperation(epcis_ac_api_address, "epcis/"+epcisname+"/subscriber", null, req.user.token, null, null, function (error, response) {
+			if (!error && response !== null && response.epcissubscribers.length !== null && response.epcissubscribers !== null) { 
+				epcissubscribers = response.epcissubscribers;
+			} else if (!error) {
+				error = "invalid JSON returned from FindZones";
+			}
+			res.render('subscribeepcis.jade', {user: req.user, epcisname:epcisname, epcissubscribers:epcissubscribers, epcissubscribername:'', error:null});
+		});	
+	});
+
+	/** 
+	 * Jaehee created
+	 * lovesm135@kaist.ac.kr
+	 * 2016.11.04
+	 * TODO
+	 */
+	app.post('/subscribeepcis/:epcisname', auth.ensureAuthenticated, function(req, res){
+		var epcisname = req.params.epcisname;
+		var epcissubscribername = req.body.epcissubscribername;
+		var args = "{\"epcissubscribername\":\""+epcissubscribername+"\"}";
+		
+		rest.postOperation(epcis_ac_api_address, "epcis/"+epcisname+"/subscribe", null, req.user.token, null, args, function (error, response) {		
+			if (error) {
+				res.render('subscribeepcis.jade', { user: req.user, epcisname: epcisname, epcissubscribers:epcissubscribers, epcissubscribername:epcissubscribername, error: error });
+			} else {
+				res.redirect('/index');
+			}
+		});	
+	});
+	
+	/** 
+	 * Jaehee created
+	 * lovesm135@kaist.ac.kr
+	 * 2016.11.05
+	 * TODO
+	 */
+	app.get('/unfurnepcis/epcis/:epcisname/user/:epcisfurnishername', auth.ensureAuthenticated, function(req, res){
+		var epcisname = req.params.epcisname;
+		var epcisfurnishername = req.params.epcisfurnishername;
+		var args = "{\"epcisfurnishername\":\""+epcisfurnishername+"\"}";
+		
+		rest.delOperation(epcis_ac_api_address, "unfurnepcis/"+epcisname+"/user/"+epcisfurnishername , null, req.user.token, null, args, function (error, response) {
+			if (error) {
+				res.render('furnishepcis.jade', { user: req.user, epcisname: epcisname, epcisfurnishers:epcisfurnishers, epcisfurnishername:epcisfurnishername, error: error });
+			} else {
+				res.redirect('/index');
+			}
+		});	
+	});
+	
+	/** 
+	 * Jaehee created
+	 * lovesm135@kaist.ac.kr
+	 * 2016.11.04
+	 * TODO
+	 */
+	app.get('/unsubsepcis/epcis/:epcisname/user/:epcissubscribername', auth.ensureAuthenticated, function(req, res){
+		var epcisname = req.params.epcisname;
+		var epcissubscribername = req.params.epcissubscribername;
+		var args = "{\"epcissubscribername\":\""+epcissubscribername+"\"}";
+		
+		rest.delOperation(epcis_ac_api_address, "unsubsepcis/"+epcisname+"/user/"+epcissubscribername , null, req.user.token, null, args, function (error, response) {
+			if (error) {
+				res.render('subscribeepcis.jade', { user: req.user, epcisname: epcisname, epcissubscribers:epcissubscribers, epcissubscribername:epcissubscribername, error: error });
+			} else {
+				res.redirect('/index');
+			}
+		});	
+	});
+	
+
+	
+	/** 
+	 * Jaehee created
+	 * lovesm135@kaist.ac.kr
 	 * 2016.10.31
 	 * 
 	 */ 
@@ -89,7 +217,9 @@ exports.configure = function (app) {
 		});
 	});
 	
-	/** Jaehee modified
+	/** 
+	 * Jaehee created
+	 * lovesm135@kaist.ac.kr
 	 * 2016.10.31
 	 * 
 	 */ 
@@ -100,9 +230,31 @@ exports.configure = function (app) {
 				res.render('error.jade', { user: req.user, epcisname: epcisname, error: error });
 			} else {
 				if(response.possessor === 'yes'){
-					res.render('editepcis.jade', { user: req.user, epcisname: epcisname, possessor: response.possessor, error: error });
+					res.render('captureevent.jade', { user: req.user, epcisname: epcisname, possessor: response.possessor, error: error });
 				} else {
-					res.render('editepcis.jade', { user: req.user, epcisname: epcisname, error: error });
+					res.render('captureevent.jade', { user: req.user, epcisname: epcisname, error: error });
+					
+				}
+			}
+		});
+	});
+	
+	/** 
+	 * Jaehee created
+	 * lovesm135@kaist.ac.kr
+	 * 2016.10.31
+	 * 
+	 */ 
+	app.get('/qryepcis/:epcisname', auth.ensureAuthenticated, function(req, res){
+		var epcisname = req.params.epcisname;
+		rest.getOperation (epcis_ac_api_address, "user/"+req.user.email+"/epcis/"+epcisname+"/subscribe", null, req.user.token, null, null, function (error, response) {
+			if (error) {
+				res.render('error.jade', { user: req.user, epcisname: epcisname, error: error });
+			} else {
+				if(response.possessor === 'yes'){
+					res.render('queryevent.jade', { user: req.user, epcisname: epcisname, subscriber: response.subscriber, error: error });
+				} else {
+					res.render('queryevent.jade', { user: req.user, epcisname: epcisname, error: error });
 					
 				}
 			}
@@ -131,20 +283,23 @@ exports.configure = function (app) {
 		});
 	});
 	
-	/** Jaehee modified
+	/** 
+	 * Jaehee created
+	 * lovesm135@kaist.ac.kr
 	 * 2016.11.04
-	 * To do.
+	 * 
 	 */ 
 	app.post('/epcis/:epcisname', auth.ensureAuthenticated, function(req, res){
 		var raw_epcisevent = req.body.epcisevent;
-		var epcisevent = raw_epcisevent.replace(/\n/g, "").replace(/\r/g, "").replace(/\t/g, " ").replace(/\"/g,"<>");
-		console.log(epcisevent);
 		var epcisname = req.params.epcisname;
+		raw_epcisevent = raw_epcisevent+"<ac:EPCISName>"+epcisname+"</ac:EPCISName>";
+		var epcisevent = raw_epcisevent.replace(/\n/g, "").replace(/\r/g, "").replace(/\t/g, " ").replace(/\"/g,"<q>");
+		console.log(epcisevent);
 		var args = "{\"epcisevent\":\""+epcisevent+"\"}";
 
 		rest.postOperation(epcis_ac_api_address, "user/"+req.user.email+"/epcis/"+epcisname+"/capture", null, req.user.token, null, args, function (error, response) {
 			if (error) {
-				res.render('editepcis.jade', { user: req.user, epcisname: epcisname, error: error });
+				res.render('captureevent.jade', { user: req.user, epcisname: epcisname, error: error });
 			} else {
 				res.redirect('/index');
 			}
@@ -417,9 +572,15 @@ exports.configure = function (app) {
 		});
 	});
 		
-	/** Jaehee modified
+	/** 
+	 * Jaehee created
+	 * lovesm135@kaist.ac.kr
 	 * 2016.10.31
-	 * 
+	 * added subscribing functionality
+	 * 2016.11.04
+	 * added furnishing functionality
+	 * 2016.11.05
+	 * TODO
 	 */ 
 	app.get('/index', auth.ensureAuthenticated, function(req, res){
 		var offset = req.param('offset', 0);
@@ -431,29 +592,48 @@ exports.configure = function (app) {
 			} else if (!error) {
 				error = "invalid JSON returned from FindZones";
 			}
-			rest.getOperation(epcis_ac_api_address, "user/"+req.user.email+"/own", null, req.user.token, null, null, function (error, response) {
-				var total = null;
-				var things = null;
-				if (!error && response !== null && response.things.length !== null && response.things !== null) { 
-					total = response.things.length;
-					things = response.things;
+			//TODO
+			rest.getOperation(epcis_ac_api_address, "user/"+req.user.email+"/furnish", null, req.user.token, null, null, function (error, response) {
+				var epcisfurns = null;
+				if (!error && response !== null && response.epcisfurns.length !== null && response.epcisfurns !== null) { 
+					epcisfurns = response.epcisfurns;
 				} else if (!error) {
 					error = "invalid JSON returned from FindZones";
 				}
-				rest.getOperation (epcis_ac_api_address, "user/"+req.user.email+"/manage", null, req.user.token, null, null, function (error, response) {
-					var groups = null;
-					if (!error && response !== null && response.groups.length !== null && response.groups !== null) { 
-						groups = response.groups;
+				rest.getOperation(epcis_ac_api_address, "user/"+req.user.email+"/subscribe", null, req.user.token, null, null, function (error, response) {
+					var epcissubss = null;
+					if (!error && response !== null && response.epcissubss.length !== null && response.epcissubss !== null) { 
+						epcissubss = response.epcissubss;
 					} else if (!error) {
 						error = "invalid JSON returned from FindZones";
 					}
-					res.render('index.jade', { user: req.user, total: total, offset: offset, count: count, epciss:epciss, things: things, groups: groups, error: error });
+					rest.getOperation(epcis_ac_api_address, "user/"+req.user.email+"/own", null, req.user.token, null, null, function (error, response) {
+						var total = null;
+						var things = null;
+						if (!error && response !== null && response.things.length !== null && response.things !== null) { 
+							total = response.things.length;
+							things = response.things;
+						} else if (!error) {
+							error = "invalid JSON returned from FindZones";
+						}
+						rest.getOperation (epcis_ac_api_address, "user/"+req.user.email+"/manage", null, req.user.token, null, null, function (error, response) {
+							var groups = null;
+							if (!error && response !== null && response.groups.length !== null && response.groups !== null) { 
+								groups = response.groups;
+							} else if (!error) {
+								error = "invalid JSON returned from FindZones";
+							}
+							res.render('index.jade', { user: req.user, total: total, offset: offset, count: count, epciss:epciss, epcisfurns:epcisfurns, epcissubss:epcissubss, things: things, groups: groups, error: error });
+						});
+					});
 				});
 			});
 		});
 	});
 	
-	/** Jaehee modified
+	/**
+	 * Jaehee created
+	 * lovesm135@kaist.ac.kr
 	 * 2016.10.31
 	 * 
 	 */ 
