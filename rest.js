@@ -69,9 +69,7 @@ exports.postOperation = function (uri, operation, username, token, password, arg
 	}
 
 	var operationReq = exports.getOperationRequest(uri, operation, username, token, password);
-	console.log(JSON.stringify(args));
 	operationReq.body = args;
-	console.log(operationReq);
 	
 	request.post(operationReq, function (error, res, body){
 		if (error) {
