@@ -34,6 +34,7 @@
 	.listRow input.recordTtl {width: 80px;}
 	.listRow input.recordData {width: 170px;}
 	.listRow textarea {width:100%; height:334px;}
+	.listRow pre {font-size: 13px;}
 
 	/* FORM FOOTER (container for buttons) - GENERIC */
 	.formFooter {margin-top: 20px;}

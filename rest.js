@@ -132,6 +132,42 @@ exports.getOperation = function (uri, operation, username, token, password, args
 	
 };
 
+/**
+ * @creator Jaehee Ha
+ * lovesm135@kaist.ac.kr
+ * created
+ * 2016.11.07
+ */
+exports.getOperationResNoJSON = function (uri, operation, username, token, password, args, callback) {
+	if (operation === null) {
+		return callback("invalid input to executeOperation");
+	}
+
+	var operationReq = exports.getOperationRequest(uri, operation, username, token, password);
+	if(args) {
+		operationReq.body = args;
+	}
+	
+	console.log(operationReq);
+	
+	request.get(operationReq, function (error, res, body){
+		if (error) {
+			return callback(error);
+		}
+		if (res.statusCode === 200) {
+			var operationResponse = Object();
+			operationResponse.body = body;
+			return callback(null, operationResponse);
+		} else if (res.statusCode >= 401 && res.statusCode <= 403) {
+			return callback(null, null);
+		} else {
+			return callback("authentication failed, status code from rest api was " + res.statusCode);
+		}
+	});
+	
+	
+};
+
 exports.delOperation = function (uri, operation, username, token, password, args, callback) {
 	if (operation === null) {
 		return callback("invalid input to executeOperation");

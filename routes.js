@@ -261,15 +261,14 @@ exports.configure = function (app) {
 	 * 
 	 */ 
 	app.get('/qryepcis/:epcisname', auth.ensureAuthenticated, function(req, res){
-		var epcisname = req.params.epcisname;
-		rest.getOperation (epcis_ac_api_address, "user/"+req.user.email+"/epcis/"+epcisname+"/subscribe", null, req.user.token, null, null, function (error, response) {
+		rest.getOperation (epcis_ac_api_address, "user/"+req.user.email+"/epcis/"+req.params.epcisname+"/subscribe", null, req.user.token, null, null, function (error, response) {
 			if (error) {
 				res.render('error.jade', { user: req.user, epcisname: epcisname, error: error });
 			} else {
 				if(response.possessor === 'yes'){
-					res.render('queryevent.jade', { user: req.user, epcisname: epcisname, subscriber: response.subscriber, error: error, epcisquery:'' });
+					res.render('queryevent.jade', { user: req.user, epcisname: req.params.epcisname, subscriber: response.subscriber, error: error, epcisquery:'' });
 				} else {
-					res.render('queryevent.jade', { user: req.user, epcisname: epcisname, error: error, epcisquery:'' });
+					res.render('queryevent.jade', { user: req.user, epcisname: req.params.epcisname, error: error, epcisquery:'' });
 				}
 			}
 		});
@@ -284,20 +283,54 @@ exports.configure = function (app) {
 	 * 
 	 */ 
 	app.post('/qryepcis/:epcisname', auth.ensureAuthenticated, function(req, res){
-		var raw_epcisquery = req.body.epcisquery;
-		var epcisname = req.params.epcisname;
-		var epcisquery = raw_epcisquery.replace(/\n/g, "").replace(/\r/g, "").replace(/\t/g, " ").replace(/\"/g,"<q>");
-
-		var args = "{\"epcisquery\":\""+epcisquery+"\"}";
-
-		rest.postOperation(epcis_ac_api_address, "user/"+req.user.email+"/epcis/"+epcisname+"/query", null, req.user.token, null, args, function (error, response) {
+		rest.getOperationResNoJSON(epcis_ac_api_address, "user/"+req.user.email+"/epcis/"+req.params.epcisname+"?"+req.body.epcisquery, null, req.user.token, null, null, function (error, response) {
 			if (error) {
-				res.render('queryevent.jade', { user: req.user, epcisname: epcisname, error: error, epcisquery:'' });
+				res.render('queryresult.jade', { user: req.user, epcisname: req.params.epcisname, error: error, epcisquery:'' });
 			} else {
-				res.render('queryevent.jade', { user: req.user, epcisname: epcisname, error: error, epcisquery:response.body });
+				
+				var queryresult = (response.body).replace(/<n>/g, "\n").replace(/<r>/g, "\r").replace(/<t>/g, "&nbsp; &nbsp; &nbsp; &nbsp; ").replace(/<q>/g,"\"");
+				res.render('queryresult.jade', { user: req.user, epcisname: req.params.epcisname, error: error, epcisquery:queryresult });
 			}
 		});
 	});
+	
+	/** 
+	 * @creator Jaehee Ha 
+	 * lovesm135@kaist.ac.kr
+	 * created
+	 * 2016.11.07
+	 * TODO will be implemented
+	 * 
+	 */ 
+	app.get('/qryepcis/:epcisname/user/:username', auth.ensureAuthenticated, function(req, res){
+		if (req.query !== null && req.query.__proto__ !== null)	{
+			delete req.query.__proto__;
+		}
+		var epcisquery = jsonToQueryString(req.query);
+		rest.getOperationResNoJSON(epcis_ac_api_address, "user/"+req.user.email+"/epcis/"+req.params.epcisname+epcisquery, null, req.user.token, null, null, function (error, response) {
+			if (error) {
+				res.render('queryresult.jade', { user: req.user, epcisname: req.params.epcisname, error: error, epcisquery:'' });
+			} else {
+				var queryresult = (response.body).replace(/<n>/g, "\n").replace(/<r>/g, "\r").replace(/<t>/g, "&nbsp; &nbsp; &nbsp; &nbsp; ").replace(/<q>/g,"\"");
+				res.render('queryresult.jade', { user: req.user, epcisname: req.params.epcisname, error: error, epcisquery:queryresult });
+			}
+		});
+	});
+	
+	/** 
+	 * @creator Jaehee Ha
+	 * lovesm135@kaist.ac.kr
+	 * created
+	 * 2016.11.07
+	 * 
+	 */
+	var jsonToQueryString = function (json) {
+	    return '?' + 
+	        Object.keys(json).map(function(key) {
+	            return encodeURIComponent(key) + '=' +
+	                encodeURIComponent(json[key]);
+	        }).join('&');
+	}
 	
 	app.get('/addgroup', auth.ensureAuthenticated, function(req, res){
 		res.render('addgroup.jade', {user: req.user, groupname:"", error:null});
