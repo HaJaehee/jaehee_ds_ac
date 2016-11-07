@@ -52,13 +52,22 @@ exports.configure = function (app) {
 	var epcisfurnishers = null;
 	app.get('/furnishepcis/:epcisname', auth.ensureAuthenticated, function(req, res){
 		var epcisname = req.params.epcisname;
+		var epcisfurnishers;
 		rest.getOperation(epcis_ac_api_address, "epcis/"+epcisname+"/furnisher", null, req.user.token, null, null, function (error, response) {
 			if (!error && response !== null && response.epcisfurnishers.length !== null && response.epcisfurnishers !== null) { 
 				epcisfurnishers = response.epcisfurnishers;
 			} else if (!error) {
 				error = "invalid JSON returned from FindZones";
 			}
-			res.render('furnishepcis.jade', {user: req.user, epcisname:epcisname, epcisfurnishers:epcisfurnishers, epcisfurnishername:'', error:null});
+			var others;
+			rest.getOperation(epcis_ac_api_address, "epcis/"+epcisname+"/furnisher/others", null, req.user.token, null, null, function (error2, response2) {
+				if (!error2 && response2 !== null && response2.epcisfurnisherothers.length !== null && response2.epcisfurnisherothers !== null) { 
+					others = response.epcisfurnisherothers;
+				} else if (!error) {
+					error = "invalid JSON returned from FindZones";
+				}
+				res.render('furnishepcis.jade', {user: req.user, epcisname:epcisname, epcisfurnishers:epcisfurnishers, epcisfurnishername:'', others:others, error:null});
+			});
 		});	
 	});
 	
@@ -99,8 +108,17 @@ exports.configure = function (app) {
 			} else if (!error) {
 				error = "invalid JSON returned from FindZones";
 			}
-			res.render('subscribeepcis.jade', {user: req.user, epcisname:epcisname, epcissubscribers:epcissubscribers, epcissubscribername:'', error:null});
-		});	
+			var others;
+			rest.getOperation(epcis_ac_api_address, "epcis/"+epcisname+"/subscriber/others", null, req.user.token, null, null, function (error2, response2) {
+				if (!error2 && response2 !== null && response2.epcissubscriberothers.length !== null && response2.epcissubscriberothers !== null) { 
+					others = response.epcissubscriberothers;
+				} else if (!error) {
+					error = "invalid JSON returned from FindZones";
+				}
+				res.render('subscribeepcis.jade', {user: req.user, epcisname:epcisname, epcissubscribers:epcissubscribers, others:others, error:null});
+		
+			});	
+		});
 	});
 
 	/** 
@@ -194,14 +212,14 @@ exports.configure = function (app) {
 	 * 2016.10.31
 	 * 
 	 */ 
-	app.get('/epcis/:epcisname', auth.ensureAuthenticated, function(req, res){
+	app.get('/captureepcis/:epcisname', auth.ensureAuthenticated, function(req, res){
 		var epcisname = req.params.epcisname;
-		rest.getOperation (epcis_ac_api_address, "user/"+req.user.email+"/epcis/"+epcisname+"/possess", null, req.user.token, null, null, function (error, response) {
+		rest.getOperation (epcis_ac_api_address, "user/"+req.user.email+"/epcis/"+epcisname+"/furnish", null, req.user.token, null, null, function (error, response) {
 			if (error) {
 				res.render('error.jade', { user: req.user, epcisname: epcisname, error: error });
 			} else {
-				if(response.possessor === 'yes'){
-					res.render('captureevent.jade', { user: req.user, epcisname: epcisname, possessor: response.possessor, error: error });
+				if(response.furnisher === 'yes'){
+					res.render('captureevent.jade', { user: req.user, epcisname: epcisname, furnisher: response.furnisher, error: error });
 				} else {
 					res.render('captureevent.jade', { user: req.user, epcisname: epcisname, error: error });
 					
@@ -217,7 +235,7 @@ exports.configure = function (app) {
 	 * 2016.11.04
 	 * 
 	 */ 
-	app.post('/epcis/:epcisname', auth.ensureAuthenticated, function(req, res){
+	app.post('/captureepcis/:epcisname', auth.ensureAuthenticated, function(req, res){
 		var raw_epcisevent = req.body.epcisevent;
 		var epcisname = req.params.epcisname;
 		raw_epcisevent = raw_epcisevent+"<ac:EPCISName>"+epcisname+"</ac:EPCISName>";
@@ -251,7 +269,6 @@ exports.configure = function (app) {
 					res.render('queryevent.jade', { user: req.user, epcisname: epcisname, subscriber: response.subscriber, error: error });
 				} else {
 					res.render('queryevent.jade', { user: req.user, epcisname: epcisname, error: error });
-					
 				}
 			}
 		});
@@ -266,12 +283,11 @@ exports.configure = function (app) {
 	 * 
 	 */ 
 	app.post('/qryepcis/:epcisname', auth.ensureAuthenticated, function(req, res){
-		var raw_epcisevent = req.body.epcisevent;
+		var raw_epcisquery = req.body.epcisquery;
 		var epcisname = req.params.epcisname;
-		raw_epcisevent = raw_epcisevent+"<ac:EPCISName>"+epcisname+"</ac:EPCISName>";
-		var epcisevent = raw_epcisevent.replace(/\n/g, "").replace(/\r/g, "").replace(/\t/g, " ").replace(/\"/g,"<q>");
+		var epcisquery = raw_epcisquery.replace(/\n/g, "").replace(/\r/g, "").replace(/\t/g, " ").replace(/\"/g,"<q>");
 
-		var args = "{\"epcisevent\":\""+epcisevent+"\"}";
+		var args = "{\"epcisquery\":\""+epcisquery+"\"}";
 
 		rest.postOperation(epcis_ac_api_address, "user/"+req.user.email+"/epcis/"+epcisname+"/query", null, req.user.token, null, args, function (error, response) {
 			if (error) {

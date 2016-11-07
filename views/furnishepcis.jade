@@ -16,7 +16,11 @@ block mainContent
 	form(method='post')
 		div(class='listRow')
 			label Add #{epcisname} EPCIS furnisher:
-				input(name='epcisfurnishername', value='#{epcisfurnishername}')
+				select(name='epcisfurnishername', required)
+					option(value='')
+					if(others)
+						for other in others
+							option(value='#{other}') #{other}
 	
 		div.formFooter
 			input(type='submit', value='Add furnisher')
