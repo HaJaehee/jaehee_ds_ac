@@ -50,23 +50,23 @@ exports.configure = function (app) {
 	 * 
 	 */
 	var epcisfurnishers = null;
+	var epcisfurnisherothers =null;
 	app.get('/furnishepcis/:epcisname', auth.ensureAuthenticated, function(req, res){
 		var epcisname = req.params.epcisname;
-		var epcisfurnishers;
 		rest.getOperation(epcis_ac_api_address, "epcis/"+epcisname+"/furnisher", null, req.user.token, null, null, function (error, response) {
 			if (!error && response !== null && response.epcisfurnishers.length !== null && response.epcisfurnishers !== null) { 
 				epcisfurnishers = response.epcisfurnishers;
 			} else if (!error) {
 				error = "invalid JSON returned from FindZones";
 			}
-			var others;
+			
 			rest.getOperation(epcis_ac_api_address, "epcis/"+epcisname+"/furnisher/others", null, req.user.token, null, null, function (error2, response2) {
 				if (!error2 && response2 !== null && response2.epcisfurnisherothers.length !== null && response2.epcisfurnisherothers !== null) { 
-					others = response.epcisfurnisherothers;
+					epcisfurnisherothers = response2.epcisfurnisherothers;
 				} else if (!error) {
 					error = "invalid JSON returned from FindZones";
 				}
-				res.render('furnishepcis.jade', {user: req.user, epcisname:epcisname, epcisfurnishers:epcisfurnishers, epcisfurnishername:'', others:others, error:null});
+				res.render('furnishepcis.jade', {user: req.user, epcisname:epcisname, epcisfurnishers:epcisfurnishers, others:epcisfurnisherothers, error:null});
 			});
 		});	
 	});
@@ -100,6 +100,7 @@ exports.configure = function (app) {
 	 * 
 	 */
 	var epcissubscribers = null;
+	var epcissubscriberothers = null;
 	app.get('/subscribeepcis/:epcisname', auth.ensureAuthenticated, function(req, res){
 		var epcisname = req.params.epcisname;
 		rest.getOperation(epcis_ac_api_address, "epcis/"+epcisname+"/subscriber", null, req.user.token, null, null, function (error, response) {
@@ -108,14 +109,14 @@ exports.configure = function (app) {
 			} else if (!error) {
 				error = "invalid JSON returned from FindZones";
 			}
-			var others;
+			
 			rest.getOperation(epcis_ac_api_address, "epcis/"+epcisname+"/subscriber/others", null, req.user.token, null, null, function (error2, response2) {
 				if (!error2 && response2 !== null && response2.epcissubscriberothers.length !== null && response2.epcissubscriberothers !== null) { 
-					others = response.epcissubscriberothers;
+					epcissubscriberothers = response2.epcissubscriberothers;
 				} else if (!error) {
 					error = "invalid JSON returned from FindZones";
 				}
-				res.render('subscribeepcis.jade', {user: req.user, epcisname:epcisname, epcissubscribers:epcissubscribers, others:others, error:null});
+				res.render('subscribeepcis.jade', {user: req.user, epcisname:epcisname, epcissubscribers:epcissubscribers, others:epcissubscriberothers, error:null});
 		
 			});	
 		});
@@ -266,9 +267,9 @@ exports.configure = function (app) {
 				res.render('error.jade', { user: req.user, epcisname: epcisname, error: error });
 			} else {
 				if(response.possessor === 'yes'){
-					res.render('queryevent.jade', { user: req.user, epcisname: epcisname, subscriber: response.subscriber, error: error });
+					res.render('queryevent.jade', { user: req.user, epcisname: epcisname, subscriber: response.subscriber, error: error, epcisquery:'' });
 				} else {
-					res.render('queryevent.jade', { user: req.user, epcisname: epcisname, error: error });
+					res.render('queryevent.jade', { user: req.user, epcisname: epcisname, error: error, epcisquery:'' });
 				}
 			}
 		});
@@ -291,9 +292,9 @@ exports.configure = function (app) {
 
 		rest.postOperation(epcis_ac_api_address, "user/"+req.user.email+"/epcis/"+epcisname+"/query", null, req.user.token, null, args, function (error, response) {
 			if (error) {
-				res.render('queryevent.jade', { user: req.user, epcisname: epcisname, error: error });
+				res.render('queryevent.jade', { user: req.user, epcisname: epcisname, error: error, epcisquery:'' });
 			} else {
-				res.redirect('/index');
+				res.render('queryevent.jade', { user: req.user, epcisname: epcisname, error: error, epcisquery:response.body });
 			}
 		});
 	});
