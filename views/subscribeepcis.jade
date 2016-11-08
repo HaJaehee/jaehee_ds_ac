@@ -21,6 +21,22 @@ block mainContent
 					if(others)
 						for other in others
 							option(value='#{other}') #{other}
-							
+			
+	p
+	
+	each epcissubscribergroup in epcissubscribergroups
+		li.listRow= epcissubscribergroup + ' '
+			a(href='/unsubsepcis/epcis/#{epcisname}/group/#{epcissubscribergroup}', onclick='return confirm(\'Are you sure that you let this group unsubscribe this epcis?\');', class='button small  delete') unsubscribe
+	
+	form(method='post')
+		div(class='listRow')
+			label Add #{epcisname} EPCIS subscriber group:
+				select(name='epcissubscribergroupname', required)
+					option(value='')
+					if(othersgroup)
+						for othergroup in othersgroup
+							if(othergroup != (user.email +':public'))
+								option(value='#{othergroup}') #{othergroup}
+	
 		div.formFooter
-			input(type='submit', value='Add subscriber')
+			input(type='submit', value='Add')

@@ -21,6 +21,22 @@ block mainContent
 					if(others)
 						for other in others
 							option(value='#{other}') #{other}
+			
+	p
+	
+	each epcisfurnishergroup in epcisfurnishergroups
+		li.listRow= epcisfurnishergroup + ' '
+			a(href='/unfurnepcis/epcis/#{epcisname}/group/#{epcisfurnishergroup}', onclick='return confirm(\'Are you sure that you let this group unfurnish this epcis?\');', class='button small  delete') unfurnish
+	
+	form(method='post')
+		div(class='listRow')
+			label Add #{epcisname} EPCIS furnisher group:
+				select(name='epcisfurnishergroupname', required)
+					option(value='')
+					if(othersgroup)
+						for othergroup in othersgroup
+							if(othergroup != (user.email +':public'))
+								option(value='#{othergroup}') #{othergroup}
 	
 		div.formFooter
-			input(type='submit', value='Add furnisher')
+			input(type='submit', value='Add')

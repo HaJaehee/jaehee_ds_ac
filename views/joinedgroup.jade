@@ -1,0 +1,21 @@
+extends layout
+
+block mainContent
+	if error
+		p.error Something went terribly bad: #{error}
+	else
+		p
+			a(href='/', class="button small pink") &laquo;  Back to main
+		h2 Group: #{joinedgroupname}
+
+		p Showing furnishing EPCISs in this group.
+
+		each epcisfurn in epcisfurns
+			li.listRow= epcisfurn + ' '
+				a(href='/captureepcis/#{epcisfurn}/group/#{joinedgroupname}', class='button small  edit') caputure	
+
+		p Showing subscribing EPCISs in this group.
+
+		each epcissubs in epcissubss
+			li.listRow= epcissubs + ' '
+				a(href='/qryepcis/#{epcissubs}/group/#{joinedgroupname}', class='button small  edit') query	
