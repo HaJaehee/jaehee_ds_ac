@@ -11,7 +11,7 @@ block mainContent
 		
 	each epcissubscriber in epcissubscribers
 		li.listRow= epcissubscriber + ' '
-			a(href='/unsubsepcis/epcis/#{epcisname}/user/#{epcissubscriber}', onclick='return confirm(\'Are you sure that you let this user unsubscribe this epcis?\');', class='button small  delete') unsubscribe 
+			a(href='/unsubsepcis/#{epcisname}/user/#{epcissubscriber}', onclick='return confirm(\'Are you sure that you let this user unsubscribe this epcis?\');', class='button small  delete') unsubscribe 
 	
 	form(method='post')
 		div(class='listRow')
@@ -21,12 +21,12 @@ block mainContent
 					if(others)
 						for other in others
 							option(value='#{other}') #{other}
-			
+		div.formFooter
+			input(type='submit', value='Add')
 	p
-	
 	each epcissubscribergroup in epcissubscribergroups
 		li.listRow= epcissubscribergroup + ' '
-			a(href='/unsubsepcis/epcis/#{epcisname}/group/#{epcissubscribergroup}', onclick='return confirm(\'Are you sure that you let this group unsubscribe this epcis?\');', class='button small  delete') unsubscribe
+			a(href='/unsubsepcis/#{epcisname}/group/#{epcissubscribergroup}', onclick='return confirm(\'Are you sure that you let this group unsubscribe this epcis?\');', class='button small  delete') unsubscribe
 	
 	form(method='post')
 		div(class='listRow')

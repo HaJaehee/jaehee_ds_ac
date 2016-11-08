@@ -25,7 +25,7 @@ block mainContent
 
 		each epcisfurn in epcisfurns
 			li.listRow= epcisfurn + ' '
-				a(href='/unfurnepcis/epcis/#{epcisfurn}/user/#{user.email}', onclick='return confirm(\'Are you sure that you want to unfurnish this epcis?\');', class='button small  delete') unfurnish 
+				a(href='/unfurnepcis/#{epcisfurn}/user/#{user.email}', onclick='return confirm(\'Are you sure that you want to unfurnish this epcis?\');', class='button small  delete') unfurnish 
 				|	
 				a(href='/captureepcis/#{epcisfurn}', class='button small  edit') caputure	
 
@@ -33,7 +33,7 @@ block mainContent
 
 		each epcissubs in epcissubss
 			li.listRow= epcissubs + ' '
-				a(href='/unsubsepcis/epcis/#{epcissubs}/user/#{user.email}', onclick='return confirm(\'Are you sure that you want to unsubscribe this epcis?\');', class='button small  delete') unsubscribe 
+				a(href='/unsubsepcis/#{epcissubs}/user/#{user.email}', onclick='return confirm(\'Are you sure that you want to unsubscribe this epcis?\');', class='button small  delete') unsubscribe 
 				|	
 				a(href='/qryepcis/#{epcissubs}', class='button small  edit') query	
 		

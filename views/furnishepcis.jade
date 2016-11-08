@@ -11,7 +11,7 @@ block mainContent
 		
 	each epcisfurnisher in epcisfurnishers
 		li.listRow= epcisfurnisher + ' '
-			a(href='/unfurnepcis/epcis/#{epcisname}/user/#{epcisfurnisher}', onclick='return confirm(\'Are you sure that you let this user unfurnish this epcis?\');', class='button small  delete') unfurnish 
+			a(href='/unfurnepcis/#{epcisname}/user/#{epcisfurnisher}', onclick='return confirm(\'Are you sure that you let this user unfurnish this epcis?\');', class='button small  delete') unfurnish 
 	
 	form(method='post')
 		div(class='listRow')
@@ -21,12 +21,12 @@ block mainContent
 					if(others)
 						for other in others
 							option(value='#{other}') #{other}
-			
+		div.formFooter
+			input(type='submit', value='Add')
 	p
-	
 	each epcisfurnishergroup in epcisfurnishergroups
 		li.listRow= epcisfurnishergroup + ' '
-			a(href='/unfurnepcis/epcis/#{epcisname}/group/#{epcisfurnishergroup}', onclick='return confirm(\'Are you sure that you let this group unfurnish this epcis?\');', class='button small  delete') unfurnish
+			a(href='/unfurnepcis/#{epcisname}/group/#{epcisfurnishergroup}', onclick='return confirm(\'Are you sure that you let this group unfurnish this epcis?\');', class='button small  delete') unfurnish
 	
 	form(method='post')
 		div(class='listRow')
@@ -37,6 +37,5 @@ block mainContent
 						for othergroup in othersgroup
 							if(othergroup != (user.email +':public'))
 								option(value='#{othergroup}') #{othergroup}
-	
 		div.formFooter
 			input(type='submit', value='Add')

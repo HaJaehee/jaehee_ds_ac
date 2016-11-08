@@ -12,10 +12,10 @@ block mainContent
 
 		each epcisfurn in epcisfurns
 			li.listRow= epcisfurn + ' '
-				a(href='/captureepcis/#{epcisfurn}/group/#{joinedgroupname}', class='button small  edit') caputure	
+				a(href='/captureepcis/#{epcisfurn}', class='button small  edit') caputure	
 
 		p Showing subscribing EPCISs in this group.
 
 		each epcissubs in epcissubss
 			li.listRow= epcissubs + ' '
-				a(href='/qryepcis/#{epcissubs}/group/#{joinedgroupname}', class='button small  edit') query	
+				a(href='/qryepcis/#{epcissubs}', class='button small  edit') query	
