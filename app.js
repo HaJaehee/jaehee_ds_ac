@@ -1,18 +1,30 @@
 
 /**
  * Module dependencies.
+ * 
+ * @modifier Jaehee Ha
+ * lovesm135@kaist.ac.kr
+ * added https
+ * 2016.11.11
  */
 
 var express = require('express')
   , routes = require('./routes')
   , auth = require('./auth')
   , http = require('http')
-  , path = require('path');
+  , https = require('https')
+  , path = require('path')
+  , fs = require('fs');
 
 var assert = require('assert');
 
 var app = express();
 
+var options = {
+		ca: fs.readFileSync('./root.crt'),
+		key: fs.readFileSync('./key.key'),
+		cert: fs.readFileSync('./2_winsgkwogml.iptime.org.crt')
+};
 
 var	passport = require('passport');
 
@@ -20,6 +32,7 @@ var config = require('./conf.json');
 
 // all environments
 app.set('port', process.env.PORT || config.PORT);
+app.set('port2', '443');
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
 app.use(express.favicon());
@@ -48,6 +61,9 @@ var httpServer = http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
 
+var httpsServer = https.createServer(options, app).listen(app.get('port2'), function(){
+	console.log('HTTPS server listening on port ' + app.get('port2'));
+})
 
 var io = require('socket.io').listen(httpServer);
 
