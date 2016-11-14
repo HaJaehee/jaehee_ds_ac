@@ -133,6 +133,7 @@ exports.getOperation = function (uri, operation, username, token, password, args
 };
 
 /**
+ * getOperationResNoJSON
  * @creator Jaehee Ha
  * lovesm135@kaist.ac.kr
  * created

@@ -9,7 +9,10 @@ exports.configure = function (app) {
 		res.sendfile(__dirname + '/css/EPCIS_AC.css');
 	});
 	
+	//---index features---
+	
 	/** 
+	 * get /index
 	 * @creator Jaehee Ha 
 	 * lovesm135@kaist.ac.kr
 	 * created
@@ -66,6 +69,7 @@ exports.configure = function (app) {
 	});
 	
 	/**
+	 * get /adopttoken/:accesstoken/clienttoken/:clienttoken
 	 * @creator Jaehee Ha 
 	 * lovesm135@kaist.ac.kr
 	 * created
@@ -86,7 +90,11 @@ exports.configure = function (app) {
 		});
 	});
 	
-	/** 
+	//---index features end---
+	//---possess features---
+	
+	/**
+	 * get /addepcis
 	 * @creator Jaehee Ha 
 	 * lovesm135@kaist.ac.kr
 	 * created
@@ -99,6 +107,7 @@ exports.configure = function (app) {
 	
 	
 	/** 
+	 * post /addepcis
 	 * @creator Jaehee Ha 
 	 * lovesm135@kaist.ac.kr
 	 * created
@@ -118,8 +127,31 @@ exports.configure = function (app) {
 		});
 	});
 	
+	/** 
+	 * get /delepcis/:epcisname
+	 * @creator Jaehee Ha 
+	 * lovesm135@kaist.ac.kr
+	 * created
+	 * 2016.10.31
+	 * 
+	 */ 
+	app.get('/delepcis/:epcisname', auth.ensureAuthenticated, function(req, res){
+		var epcisname = req.params.epcisname;
+		var args = "{\"epcisname\":\""+epcisname+"\",\"username\":\""+req.user.email+"\"}";
+		rest.delOperation(epcis_ac_api_address, "delepcis/"+epcisname, null, req.user.token, null, args, function (error, response) {
+			if (error) {
+				res.render('error.jade', { user: req.user, epcisname: epcisname, error: error });
+			} else {
+				res.redirect('/index');
+			}
+		});
+	});
+	
+	//---possess features end---
+	//---furnish features---
 	
 	/** 
+	 * get /furnishepcis/:epcisname
 	 * @creator Jaehee Ha 
 	 * lovesm135@kaist.ac.kr
 	 * created
@@ -162,6 +194,7 @@ exports.configure = function (app) {
 	});
 	
 	/** 
+	 * post /furnishepcis/:epcisname
 	 * @creator Jaehee Ha 
 	 * lovesm135@kaist.ac.kr
 	 * created
@@ -209,6 +242,7 @@ exports.configure = function (app) {
 	});
 	
 	/** 
+	 * get /unfurnepcis/:epcisname/user/:epcisfurnishername
 	 * @creator Jaehee Ha 
 	 * lovesm135@kaist.ac.kr
 	 * created
@@ -254,6 +288,7 @@ exports.configure = function (app) {
 	});
 	
 	/** 
+	 * get /unfurnepcis/:epcisname/group/:epcisfurnishergroupname
 	 * @creator Jaehee Ha 
 	 * lovesm135@kaist.ac.kr
 	 * created
@@ -296,7 +331,11 @@ exports.configure = function (app) {
 		});
 	});
 	
+	//---furnish epcis features end---
+	//---subscribe epcis features---
+	
 	/** 
+	 * get /subscribeepcis/:epcisname
 	 * @creator Jaehee Ha 
 	 * lovesm135@kaist.ac.kr
 	 * created
@@ -338,6 +377,7 @@ exports.configure = function (app) {
 	});
 
 	/** 
+	 * post /subscribeepcis/:epcisname
 	 * @creator Jaehee Ha 
 	 * lovesm135@kaist.ac.kr
 	 * created
@@ -386,9 +426,8 @@ exports.configure = function (app) {
 		});
 	});
 	
-
-	
 	/** 
+	 * get /unsubsepcis/:epcisname/user/:epcissubscribername
 	 * @creator Jaehee Ha 
 	 * lovesm135@kaist.ac.kr
 	 * created
@@ -429,6 +468,7 @@ exports.configure = function (app) {
 	});
 	
 	/** 
+	 * get /unsubsepcis/:epcisname/group/:epcissubscribergroupname
 	 * @creator Jaehee Ha 
 	 * lovesm135@kaist.ac.kr
 	 * created
@@ -471,26 +511,11 @@ exports.configure = function (app) {
 		});
 	});
 	
-	/** 
-	 * @creator Jaehee Ha 
-	 * lovesm135@kaist.ac.kr
-	 * created
-	 * 2016.10.31
-	 * 
-	 */ 
-	app.get('/delepcis/:epcisname', auth.ensureAuthenticated, function(req, res){
-		var epcisname = req.params.epcisname;
-		var args = "{\"epcisname\":\""+epcisname+"\",\"username\":\""+req.user.email+"\"}";
-		rest.delOperation(epcis_ac_api_address, "delepcis/"+epcisname, null, req.user.token, null, args, function (error, response) {
-			if (error) {
-				res.render('error.jade', { user: req.user, epcisname: epcisname, error: error });
-			} else {
-				res.redirect('/index');
-			}
-		});
-	});
+	//---subcribe features end---
+	//---capture features---
 	
 	/** 
+	 * get /captureepcis/:epcisname
 	 * @creator Jaehee Ha 
 	 * lovesm135@kaist.ac.kr
 	 * created
@@ -514,6 +539,7 @@ exports.configure = function (app) {
 	});
 	
 	/** 
+	 * post /captureepcis/:epcisname
 	 * @creator Jaehee Ha 
 	 * lovesm135@kaist.ac.kr
 	 * created
@@ -538,6 +564,7 @@ exports.configure = function (app) {
 	});
 	
 	/** 
+	 * post /captureepcis/:epcisname/user/:username
 	 * @creator Jaehee Ha 
 	 * lovesm135@kaist.ac.kr
 	 * created
@@ -560,7 +587,11 @@ exports.configure = function (app) {
 		});
 	});
 	
+	//---capture features end---
+	//---query features---
+	
 	/** 
+	 * get /qryepcis/:epcisname
 	 * @creator Jaehee Ha 
 	 * lovesm135@kaist.ac.kr
 	 * created
@@ -582,6 +613,7 @@ exports.configure = function (app) {
 	});
 	
 	/** 
+	 * post /qryepcis/:epcisname
 	 * @creator Jaehee Ha 
 	 * lovesm135@kaist.ac.kr
 	 * created
@@ -600,6 +632,7 @@ exports.configure = function (app) {
 	});
 	
 	/** 
+	 * get /qryepcis/:epcisname/user/:username/token/:token/apiquery?
 	 * @creator Jaehee Ha 
 	 * lovesm135@kaist.ac.kr
 	 * created
@@ -623,6 +656,7 @@ exports.configure = function (app) {
 	});
 	
 	/** 
+	 * jsonToQueryString
 	 * @creator Jaehee Ha
 	 * lovesm135@kaist.ac.kr
 	 * created
@@ -636,6 +670,9 @@ exports.configure = function (app) {
 	                encodeURIComponent(json[key]);
 	        }).join('&');
 	}
+	
+	//---query features end---
+	//---group features---
 	
 	app.get('/addgroup', auth.ensureAuthenticated, function(req, res){
 		res.render('addgroup.jade', {user: req.user, groupname:"", error:null});
@@ -655,6 +692,7 @@ exports.configure = function (app) {
 	});
 	
 	/** 
+	 * get /delgroup/:groupname
 	 * @modifier Jaehee Ha
 	 * lovesm135@kaist.ac.kr
 	 * modified
@@ -674,6 +712,7 @@ exports.configure = function (app) {
 	});
 	
 	/** 
+	 * get /group/:groupname
 	 * @modifier Jaehee Ha
 	 * lovesm135@kaist.ac.kr
 	 * modified
@@ -689,6 +728,7 @@ exports.configure = function (app) {
 	});
 	
 	/** 
+	 * get /joinedgroup/:joinedgroupname
 	 * @creator Jaehee Ha
 	 * lovesm135@kaist.ac.kr
 	 * created
@@ -728,6 +768,7 @@ exports.configure = function (app) {
 	});
 
 	/** 
+	 * get /group/:groupname/join
 	 * @modifier Jaehee Ha
 	 * lovesm135@kaist.ac.kr
 	 * modified
@@ -743,6 +784,7 @@ exports.configure = function (app) {
 	});
 	
 	/** 
+	 * post /group/:groupname/join
 	 * @modifier Jaehee Ha
 	 * lovesm135@kaist.ac.kr
 	 * modified
@@ -763,6 +805,7 @@ exports.configure = function (app) {
 	});
 	
 	/** 
+	 * get /group/:groupname/unjoin/:username
 	 * @modifier Jaehee Ha
 	 * lovesm135@kaist.ac.kr
 	 * modified
@@ -782,8 +825,11 @@ exports.configure = function (app) {
 		});
 	});
 
+	//---group features end---
+	//---default routing features---
 		
 	/**
+	 * get /:offset?/:count?
 	 * @creator Jaehee Ha 
 	 * lovesm135@kaist.ac.kr
 	 * created
@@ -793,5 +839,7 @@ exports.configure = function (app) {
 	app.get('/:offset?/:count?', function(req, res){
 		res.redirect('/index');
 	});
+	
+	//---default routing features end---
 
 };
