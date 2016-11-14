@@ -38,6 +38,7 @@ exports.configure = function (login_url, logout_url, app) {
 	});
 
 	app.post(login_url + "/:targetURL", function (req, res, next) {
+		
 		if(req.body.signup === "Sign Up"){
 			res.redirect('/signup');
 		} else {

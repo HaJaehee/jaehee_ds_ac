@@ -7,6 +7,13 @@ block mainContent
 		p
 			a(href='/', class="button small pink") &laquo;  Back to main
 		h2 Your EPCISs and Groups
+		h2 My access token: #{myaccesstoken}
+		
+		p
+			a(href='/adopttoken/#{myaccesstoken}/clienttoken/#{clienttoken}', onclick='return confirm(\'Are you sure that you want to adopt this access token for EPCIS client?\');', class='button small green') adopt token for client
+		
+		li.listRow Client Token: #{clienttoken}
+		
 		
 		p Showing EPCISs in your account.
 	
@@ -15,7 +22,7 @@ block mainContent
 	
 		each epcis in epciss
 			li.listRow= epcis + ' '
-				a(href='/delepcis/#{epcis}', onclick='return confirm(\'Are you sure that you want to delete this epcis?\');', class='button small  delete') delete
+				a(href='/delepcis/#{epcis}', onclick='return confirm(\'Are you sure that you want to delete this EPCIS?\');', class='button small  delete') delete
 				|	
 				a(href='/subscribeepcis/#{epcis}', class='button small edit') + subscribers
 				|	
@@ -25,7 +32,7 @@ block mainContent
 
 		each epcisfurn in epcisfurns
 			li.listRow= epcisfurn + ' '
-				a(href='/unfurnepcis/#{epcisfurn}/user/#{user.email}', onclick='return confirm(\'Are you sure that you want to unfurnish this epcis?\');', class='button small  delete') unfurnish 
+				a(href='/unfurnepcis/#{epcisfurn}/user/#{user.email}', onclick='return confirm(\'Are you sure that you want to unfurnish this EPCIS?\');', class='button small  delete') unfurnish 
 				|	
 				a(href='/captureepcis/#{epcisfurn}', class='button small  edit') caputure	
 
@@ -33,7 +40,7 @@ block mainContent
 
 		each epcissubs in epcissubss
 			li.listRow= epcissubs + ' '
-				a(href='/unsubsepcis/#{epcissubs}/user/#{user.email}', onclick='return confirm(\'Are you sure that you want to unsubscribe this epcis?\');', class='button small  delete') unsubscribe 
+				a(href='/unsubsepcis/#{epcissubs}/user/#{user.email}', onclick='return confirm(\'Are you sure that you want to unsubscribe this EPCIS?\');', class='button small  delete') unsubscribe 
 				|	
 				a(href='/qryepcis/#{epcissubs}', class='button small  edit') query	
 		
