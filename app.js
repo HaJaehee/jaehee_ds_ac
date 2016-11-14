@@ -20,15 +20,15 @@ var assert = require('assert');
 
 var app = express();
 
-var options = {
-		ca: fs.readFileSync('./root.crt'),
-		key: fs.readFileSync('./key.key'),
-		cert: fs.readFileSync('./2_winsgkwogml.iptime.org.crt')
-};
-
 var	passport = require('passport');
 
 var config = require('./conf.json');
+
+var options = {
+		ca: fs.readFileSync(config.CA),
+		key: fs.readFileSync(config.KEY),
+		cert: fs.readFileSync(config.CERT)
+};
 
 // all environments
 app.set('port', process.env.PORT || config.PORT);

@@ -1,6 +1,6 @@
 {
   "name": "EPCIS Access Control",
-  "version": "0.0.2",
+  "version": "2.0.0",
   "private": true,
   "scripts": {
     "start": "node app.js"
@@ -10,7 +10,6 @@
     "passport": "0.3.2",
     "passport-local": "1.0.0",
     "jade": "*",
-    "native-dns": "0.7.0",
     "socket.io": "1.4.4",
     "request": "*"
   }

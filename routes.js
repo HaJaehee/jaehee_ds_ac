@@ -9,88 +9,6 @@ exports.configure = function (app) {
 		res.sendfile(__dirname + '/css/EPCIS_AC.css');
 	});
 	
-	//---index features---
-	
-	/** 
-	 * get /index
-	 * @creator Jaehee Ha 
-	 * lovesm135@kaist.ac.kr
-	 * created
-	 * 2016.10.31
-	 * added subscribing functionality
-	 * 2016.11.04
-	 * added furnishing functionality
-	 * removed thing, service functionality
-	 * 2016.11.05
-	 * added joinedgroup functionality
-	 * 2016.11.08
-	 * added group access control functionality
-	 * integrated
-	 * 2016.11.09
-	 * added client token features
-	 * 2016.11.14
-	 */ 
-	app.get('/index', auth.ensureAuthenticated, function(req, res){
-		var offset = req.param('offset', 0);
-		var count = req.param('count', 10);
-		rest.getOperation(epcis_ac_api_address, "user/"+req.user.email+"/account", null, req.user.token, null, null, function (error, response) {
-			var epciss = null;
-			var epcisfurns = null;
-			var epcissubss = null;
-			var groups = null;
-			var joinedgroups = null;
-			var myaccesstoken = null;
-			var clienttoken = null;
-			if (!error && response !== null && response.epciss.length !== null && response.epciss !== null && response.epcisfurns.length !== null && response.epcisfurns !== null && response.epcissubss.length !== null && response.epcissubss !== null && response.groups.length !== null && response.groups !== null && response.joinedgroups.length !== null && response.joinedgroups !== null) { 
-				epciss = response.epciss;
-				epcisfurns = response.epcisfurns;
-				epcissubss = response.epcissubss;
-				groups = response.groups;
-				joinedgroups = response.joinedgroups;
-				myaccesstoken = req.user.token;
-				clienttoken = response.clienttoken;
-				if (clienttoken == null){
-					var args = "{\"accesstoken\":\""+req.user.token+"\",\"clienttoken\":\"\"}";
-					rest.postOperation(epcis_ac_api_address, "user/"+req.user.email+"/adopt", null, req.user.token, null, args, function (error1, response1) {
-						if (error1) {
-							res.render('error.jade', { user: req.user, error: error1 });
-						} else {
-							clienttoken = response1.result;
-							res.render('index.jade', { user: req.user, offset: offset, count: count, epciss:epciss, epcisfurns:epcisfurns, epcissubss:epcissubss, groups: groups, joinedgroups:joinedgroups, myaccesstoken:myaccesstoken, clienttoken: clienttoken, error: error });
-						}
-					});
-				}else{
-					res.render('index.jade', { user: req.user, offset: offset, count: count, epciss:epciss, epcisfurns:epcisfurns, epcissubss:epcissubss, groups: groups, joinedgroups:joinedgroups, myaccesstoken:myaccesstoken, clienttoken: clienttoken, error: error });
-				}
-			} else if (!error) {
-				error = "invalid JSON returned from FindZones";
-			}
-		});
-	});
-	
-	/**
-	 * get /adopttoken/:accesstoken/clienttoken/:clienttoken
-	 * @creator Jaehee Ha 
-	 * lovesm135@kaist.ac.kr
-	 * created
-	 * 2016.11.14
-	 * 
-	 */ 
-	app.get('/adopttoken/:accesstoken/clienttoken/:clienttoken', auth.ensureAuthenticated, function(req, res){
-		var username = req.user.email;
-		var accesstoken = req.params.accesstoken;
-		var clienttoken = req.params.clienttoken;
-		var args = "{\"accesstoken\":\""+accesstoken+"\",\"clienttoken\":\""+clienttoken+"\"}";
-		rest.postOperation(epcis_ac_api_address, "user/"+username+"/adopt", null, req.user.token, null, args, function (error, response) {
-			if (error) {
-				res.render('error.jade', { user: req.user, error: error });
-			} else {
-				res.redirect('/index');
-			}
-		});
-	});
-	
-	//---index features end---
 	//---possess features---
 	
 	/**
@@ -564,25 +482,26 @@ exports.configure = function (app) {
 	});
 	
 	/** 
-	 * post /captureepcis/:epcisname/user/:username
+	 * post /captureepcis/:epcisname/user/:username/apicapture
 	 * @creator Jaehee Ha 
 	 * lovesm135@kaist.ac.kr
 	 * created
 	 * 2016.11.12
 	 * 
 	 */ 
-	app.post('/captureepcis/:epcisname/user/:username', function(req, res){
-		var raw_epcisevent = req.body.epcisevent;
+	app.post('/captureepcis/:epcisname/user/:username/apicapture', function(req, res){
 		var epcisname = req.params.epcisname;
 		var clienttoken = req.body.token;
+		var raw_epcisevent = req.body.epcisevent;
 		raw_epcisevent = raw_epcisevent+"<ac:EPCISName>"+epcisname+"</ac:EPCISName>";
 		var epcisevent = raw_epcisevent.replace(/\n/g, "").replace(/\r/g, "").replace(/\t/g, " ").replace(/\"/g,"<q>");
-		var args = "{ \"epcisevent\" : \""+epcisevent+"\" , \"clienttoken\" : \""+clienttoken+"\" }";
-		rest.postOperation(epcis_ac_api_address, "user/"+req.params.username+"/epcis/"+epcisname+"/apicapture", null, null, null, args, function (error, response) {
+		var args = "{\"epcisevent\":\""+epcisevent+"\"}";
+		rest.postOperation(epcis_ac_api_address, "user/"+req.params.username+"/epcis/"+epcisname+"/token/"+clienttoken+"/apicapture", null, "", null, args, function (error, response) {
 			if (error) {
-				res.send('error:' + error );
+				console.log(error);
+				res.send(error);
 			} else {
-				res.send('success');
+				res.send(response.result);
 			}
 		});
 	});
@@ -826,6 +745,91 @@ exports.configure = function (app) {
 	});
 
 	//---group features end---
+	
+	//---index features---
+	
+
+	
+	/**
+	 * get /adopttoken/:accesstoken/clienttoken/:clienttoken
+	 * @creator Jaehee Ha 
+	 * lovesm135@kaist.ac.kr
+	 * created
+	 * 2016.11.14
+	 * 
+	 */ 
+	app.get('/adopttoken/:accesstoken/clienttoken/:clienttoken', auth.ensureAuthenticated, function(req, res){
+		var username = req.user.email;
+		var accesstoken = req.params.accesstoken;
+		var clienttoken = req.params.clienttoken;
+		var args = "{\"accesstoken\":\""+accesstoken+"\",\"clienttoken\":\""+clienttoken+"\"}";
+		rest.postOperation(epcis_ac_api_address, "user/"+username+"/adopt", null, req.user.token, null, args, function (error, response) {
+			if (error) {
+				res.render('error.jade', { user: req.user, error: error });
+			} else {
+				res.redirect('/index');
+			}
+		});
+	});
+	
+	/** 
+	 * get /index
+	 * @creator Jaehee Ha 
+	 * lovesm135@kaist.ac.kr
+	 * created
+	 * 2016.10.31
+	 * added subscribing functionality
+	 * 2016.11.04
+	 * added furnishing functionality
+	 * removed thing, service functionality
+	 * 2016.11.05
+	 * added joinedgroup functionality
+	 * 2016.11.08
+	 * added group access control functionality
+	 * integrated
+	 * 2016.11.09
+	 * added client token features
+	 * 2016.11.14
+	 */ 
+	app.get('/index', auth.ensureAuthenticated, function(req, res){
+		var offset = req.param('offset', 0);
+		var count = req.param('count', 10);
+		rest.getOperation(epcis_ac_api_address, "user/"+req.user.email+"/account", null, req.user.token, null, null, function (error, response) {
+			var epciss = null;
+			var epcisfurns = null;
+			var epcissubss = null;
+			var groups = null;
+			var joinedgroups = null;
+			var myaccesstoken = null;
+			var clienttoken = null;
+			if (!error && response !== null && response.epciss.length !== null && response.epciss !== null && response.epcisfurns.length !== null && response.epcisfurns !== null && response.epcissubss.length !== null && response.epcissubss !== null && response.groups.length !== null && response.groups !== null && response.joinedgroups.length !== null && response.joinedgroups !== null) { 
+				epciss = response.epciss;
+				epcisfurns = response.epcisfurns;
+				epcissubss = response.epcissubss;
+				groups = response.groups;
+				joinedgroups = response.joinedgroups;
+				myaccesstoken = req.user.token;
+				clienttoken = response.clienttoken;
+				if (clienttoken == null){
+					var args = "{\"accesstoken\":\""+req.user.token+"\",\"clienttoken\":\"\"}";
+					rest.postOperation(epcis_ac_api_address, "user/"+req.user.email+"/adopt", null, req.user.token, null, args, function (error1, response1) {
+						if (error1) {
+							return res.render('error.jade', { user: req.user, error: error1 });
+						} else {
+							clienttoken = response1.result;
+							return res.render('index.jade', { user: req.user, offset: offset, count: count, epciss:epciss, epcisfurns:epcisfurns, epcissubss:epcissubss, groups: groups, joinedgroups:joinedgroups, myaccesstoken:myaccesstoken, clienttoken: clienttoken, error: error });
+						}
+					});
+				}else{
+					return res.render('index.jade', { user: req.user, offset: offset, count: count, epciss:epciss, epcisfurns:epcisfurns, epcissubss:epcissubss, groups: groups, joinedgroups:joinedgroups, myaccesstoken:myaccesstoken, clienttoken: clienttoken, error: error });
+				}
+			} else if (!error) {
+				error = "invalid JSON returned from FindZones";
+			}
+		});
+	});
+	
+	//---index features end---
 	//---default routing features---
 		
 	/**
