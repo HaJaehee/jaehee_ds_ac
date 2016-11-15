@@ -4,5 +4,5 @@
    "DNS_ADDRESS": "8.8.8.8",
    "CA":"./root.crt",
    "KEY":"./key.key",
-   "CERT":"./2_winsgkwogml.iptime.org.crt"
+   "CERT":"./cert.crt"
 }
