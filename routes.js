@@ -559,12 +559,12 @@ exports.configure = function (app) {
 	 * modified
 	 * 2016.11.12
 	 */ 
-	app.get('/qryepcis/:epcisname/user/:username/token/:token/apiquery?', function(req, res){
+	app.get('/qryepcis/:epcisname/user/:username/token/:token/apiquery', function(req, res){
 		if (req.query !== null && req.query.__proto__ !== null)	{
 			delete req.query.__proto__;
 		}
 		var epcisquery = jsonToQueryString(req.query);
-		rest.getOperationResNoJSON(epcis_ac_api_address, "user/"+req.params.username+"/epcis/"+req.params.epcisname+"/token/"+req.params.token+"/apiquery?"+epcisquery, null, null, null, null, function (error, response) {
+		rest.getOperationResNoJSON(epcis_ac_api_address, "user/"+req.params.username+"/epcis/"+req.params.epcisname+"/token/"+req.params.token+"/apiquery?"+epcisquery, null, "", null, null, function (error, response) {
 			if (error) {
 				res.render('error.jade', { user: req.user, epcisname: req.params.epcisname, error: error});
 			} else {

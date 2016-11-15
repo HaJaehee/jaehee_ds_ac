@@ -1,5 +1,5 @@
 {
-  "name": "EPCIS Access Control",
+  "name": "epcis_access_control",
   "version": "2.0.0",
   "private": true,
   "scripts": {
