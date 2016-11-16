@@ -126,6 +126,8 @@ exports.getOperation = function (uri, operation, username, token, password, args
 			}
 		} else if (res.statusCode >= 401 && res.statusCode <= 403) {
 			return callback(null, null);
+		} else if (res.statusCode >= 500){
+			return callback(null, null);
 		} else {
 			return callback("authentication failed, status code from rest api was " + res.statusCode);
 		}
@@ -163,7 +165,7 @@ exports.getOperationResNoJSON = function (uri, operation, username, token, passw
 			return callback(null, operationResponse);
 		} else if (res.statusCode >= 401 && res.statusCode <= 403) {
 			return callback(null, null);
-		} else {
+		}else{
 			return callback("authentication failed, status code from rest api was " + res.statusCode);
 		}
 	});

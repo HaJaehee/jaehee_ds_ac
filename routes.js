@@ -824,7 +824,9 @@ exports.configure = function (app) {
 					return res.render('index.jade', { user: req.user, offset: offset, count: count, epciss:epciss, epcisfurns:epcisfurns, epcissubss:epcissubss, groups: groups, joinedgroups:joinedgroups, myaccesstoken:myaccesstoken, clienttoken: clienttoken, error: error });
 				}
 			} else if (!error) {
-				error = "invalid JSON returned from FindZones";
+				return res.render('error.jade', {user: req.user, error:'OAuth: Authentication failed. Invalid token.'});
+			} else {
+				return res.render('error.jade', {user: req.user, error:'Something wrong with graph database.'});
 			}
 		});
 	});
