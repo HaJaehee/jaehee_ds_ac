@@ -103,7 +103,7 @@ exports.configure = function (app) {
 						}
 					});	
 				} else {
-					res.render('error.jade', { user: req.user, epcisname: epcisname, error: error });
+					res.render('error.jade', { user: req.user, epcisname: epcisname, error: 'no permission' });
 				}
 			} else if (error) {
 				error = "invalid JSON returned from FindZones";
@@ -151,7 +151,7 @@ exports.configure = function (app) {
 						});
 					}
 				} else if (error) {
-					error = "invalid JSON returned from FindZones";
+					res.render('error.jade', { user: req.user, epcisname: epcisname, error: 'no permission' });
 				}
 			} else if (error) {
 				error = "invalid JSON returned from FindZones";
@@ -192,9 +192,8 @@ exports.configure = function (app) {
 									res.redirect('/index');
 								}
 							});	
-						}
-						else	{
-							res.render('error.jade', { user: req.user, epcisname: epcisname, error: error });
+						}else	{
+							res.render('error.jade', { user: req.user, epcisname: epcisname, error: 'no permission' });
 						}	
 					}
 				});
@@ -235,9 +234,8 @@ exports.configure = function (app) {
 									res.redirect('/index');
 								}
 							});	
-						}
-						else	{
-							res.render('error.jade', { user: req.user, epcisname: epcisname, error: error });
+						}else	{
+							res.render('error.jade', { user: req.user, epcisname: epcisname, error: 'no permission' });
 						}
 							
 					}
@@ -286,7 +284,7 @@ exports.configure = function (app) {
 						}
 					});
 				} else {
-					res.render('error.jade', { user: req.user, epcisname: epcisname, error: error });
+					res.render('error.jade', { user: req.user, epcisname: epcisname, error: 'no permission' });
 				}
 			} else if (!error) {
 				error = "invalid JSON returned from FindZones";
@@ -336,7 +334,7 @@ exports.configure = function (app) {
 						});	
 					}
 				} else {
-					res.render('error.jade', { user: req.user, epcisname: epcisname, error: error });
+					res.render('error.jade', { user: req.user, epcisname: epcisname, error: 'no permission' });
 				}
 			} else if (!error) {
 				error = "invalid JSON returned from FindZones";
@@ -376,6 +374,8 @@ exports.configure = function (app) {
 									res.redirect('/index');
 								}
 							});	
+						}else {
+							res.render('error.jade', {  user: req.user, epcisname: epcisname, error: 'no permission' });
 						}
 					}
 				});
@@ -415,9 +415,8 @@ exports.configure = function (app) {
 									res.redirect('/index');
 								}
 							});	
-						}
-						else	{
-							res.render('error.jade', { user: req.user, epcisname: epcisname, error: error });
+						}else	{
+							res.render('error.jade', { user: req.user, epcisname: epcisname, error: 'no permission' });
 						}
 							
 					}
@@ -449,7 +448,7 @@ exports.configure = function (app) {
 				if(response.furnisher === 'yes'){
 					res.render('captureevent.jade', { user: req.user, epcisname: epcisname, furnisher: response.furnisher, error: error });
 				} else {
-					res.render('error.jade', { user: req.user, epcisname: epcisname, error: error });
+					res.render('error.jade', { user: req.user, epcisname: epcisname, error: 'no permission' });
 					
 				}
 			}
@@ -525,7 +524,7 @@ exports.configure = function (app) {
 				if(response.subscriber === 'yes'){
 					res.render('queryevent.jade', { user: req.user, epcisname: req.params.epcisname, subscriber: response.subscriber, error: error, epcisquery:'' });
 				} else {
-					res.render('error.jade', { user: req.user, epcisname: req.params.epcisname, error: error});
+					res.render('error.jade', { user: req.user, epcisname: req.params.epcisname, error: 'no permission'});
 				}
 			}
 		});
@@ -642,7 +641,11 @@ exports.configure = function (app) {
 		var groupname = req.params.groupname;
 		var args = "{\"managername\":\""+req.user.email+"\"}";
 		rest.getOperation(epcis_ac_api_address, "group/"+groupname+"/join", null, req.user.token, null, args, function (error, response) {
-			res.render('editgroup.jade', { user: req.user, groupname: groupname, users: response.users, error: error });
+			if (error)	{
+				res.render('error.jade', {  user: req.user, error: error });
+			}else {
+				res.render('editgroup.jade', { user: req.user, groupname: groupname, users: response.users, error: error });
+			}
 		});
 	});
 	
@@ -680,7 +683,7 @@ exports.configure = function (app) {
 						});
 					});
 				}else {
-					res.render('error.jade', { user: req.user, joinedgroupname: joinedgroupname, error: error });
+					res.render('error.jade', { user: req.user, joinedgroupname: joinedgroupname, error: 'no permission' });
 				}
 			}
 		});
