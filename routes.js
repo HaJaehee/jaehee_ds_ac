@@ -506,12 +506,13 @@ exports.configure = function (app) {
 	 * lovesm135@kaist.ac.kr
 	 * created
 	 * 2016.11.04
-	 * 
+	 * removed capturing with epcisname 
+	 * 2016.11.30
 	 */ 
 	app.post('/captureepcis/:epcisname', auth.ensureAuthenticated, function(req, res){
 		var raw_epcisevent = req.body.epcisevent;
 		var epcisname = req.params.epcisname;
-		raw_epcisevent = raw_epcisevent+"<ac:EPCISName>"+epcisname+"</ac:EPCISName>";
+		raw_epcisevent = raw_epcisevent;//+"<ac:EPCISName>"+epcisname+"</ac:EPCISName>";
 		var epcisevent = raw_epcisevent.replace(/\n/g, "").replace(/\r/g, "").replace(/\t/g, " ").replace(/\"/g,"<q>");
 
 		var args = "{\"epcisevent\":\""+epcisevent+"\"}";
@@ -531,13 +532,14 @@ exports.configure = function (app) {
 	 * lovesm135@kaist.ac.kr
 	 * created
 	 * 2016.11.12
-	 * 
+	 * removed capturing with epcisname 
+	 * 2016.11.30
 	 */ 
 	app.post('/captureepcis/:epcisname/user/:username/apicapture', function(req, res){
 		var epcisname = req.params.epcisname;
 		var clienttoken = req.body.token;
 		var raw_epcisevent = req.body.epcisevent;
-		raw_epcisevent = raw_epcisevent+"<ac:EPCISName>"+epcisname+"</ac:EPCISName>";
+		raw_epcisevent = raw_epcisevent;//+"<ac:EPCISName>"+epcisname+"</ac:EPCISName>";
 		var epcisevent = raw_epcisevent.replace(/\n/g, "").replace(/\r/g, "").replace(/\t/g, " ").replace(/\"/g,"<q>");
 		var args = "{\"epcisevent\":\""+epcisevent+"\"}";
 		rest.postOperation(epcis_ac_api_address, "user/"+req.params.username+"/epcis/"+epcisname+"/token/"+clienttoken+"/apicapture", null, "", null, args, function (error, response) {
