@@ -14,5 +14,5 @@ block mainContent
 			
 		each user in users
 			li.listRow= user + ' '
-				a(href='/group/#{groupname}/unjoin/#{user}', onclick='return confirm(\'Are you sure that you want to delete this user?\');', class='button small  delete') delete
+				a(href='/group/#{groupname}/unjoin/#{user}', onclick='return confirm(\'Are you sure that you want to expel this member?\');', class='button small  delete') expel
 		
