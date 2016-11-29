@@ -38,7 +38,7 @@ exports.configure = function (app) {
 		
 		rest.postOperation(epcis_ac_api_address, "user/"+req.user.email+"/possess", null, req.user.token, null, args, function (error, response) {
 			if (error) {
-				res.render('addepcis.jade', { user: req.user, epcisname: epcisname, error: error });
+				res.render('addepcis.jade', { user: req.user, epcisname: epcisname, error: JSON.stringify(error) });
 			} else {
 				res.redirect('/index');
 			}
@@ -58,7 +58,50 @@ exports.configure = function (app) {
 		var args = "{\"epcisname\":\""+epcisname+"\",\"username\":\""+req.user.email+"\"}";
 		rest.delOperation(epcis_ac_api_address, "delepcis/"+epcisname, null, req.user.token, null, args, function (error, response) {
 			if (error) {
-				res.render('error.jade', { user: req.user, epcisname: epcisname, error: error });
+				res.render('error.jade', { user: req.user, epcisname: epcisname, error: JSON.stringify(error) });
+			} else {
+				res.redirect('/index');
+			}
+		});
+	});
+	
+	/**
+	 * get /editepcis
+	 * @creator Jaehee Ha 
+	 * lovesm135@kaist.ac.kr
+	 * created
+	 * 2016.11.29
+	 */
+	app.get('/editepcis/:epcisname', auth.ensureAuthenticated, function(req, res){
+		var epcisname = req.params.epcisname;
+		var username = req.user.email;
+
+		rest.getOperation(epcis_ac_api_address, "epcis/"+epcisname+"/user/"+username+"/geturl", null, req.user.token, null, null, function (error1, response1) {
+			if (!error1 && response1 !== null && response1.epcisurl.length !== null && response1.epcisurl !== null) { 
+				var epcisurl = response1.epcisurl;
+				res.render('editepcis.jade', {user: req.user, epcisname:epcisname, epcisurl:epcisurl, error:null});
+			}else {
+			res.render('error.jade', { user: req.user, epcisname: epcisname, error: 'no permission' });
+			}
+		});
+	});
+	
+	/** 
+	 * post /editepcis
+	 * @creator Jaehee Ha 
+	 * lovesm135@kaist.ac.kr
+	 * created
+	 * 2016.11.29
+	 */ 
+	app.post('/editepcis/:epcisname', auth.ensureAuthenticated, function(req, res){
+		var username = req.user.email;
+		var epcisname = req.params.epcisname;
+		var epcisurl = req.body.epcisurl;
+		var args = "{\"username\":\""+username+"\",\"epcisurl\":\""+epcisurl+"\"}";
+		
+		rest.postOperation(epcis_ac_api_address, "epcis/"+epcisname+"/editurl", null, req.user.token, null, args, function (error, response) {
+			if (error) {
+				res.render('error.jade', { user: req.user, error: JSON.stringify(error) });
 			} else {
 				res.redirect('/index');
 			}
@@ -133,7 +176,7 @@ exports.configure = function (app) {
 						
 						rest.postOperation(epcis_ac_api_address, "epcis/"+epcisname+"/furnish", null, req.user.token, null, args, function (error, response) {		
 							if (error) {
-								res.render('error.jade', { user: req.user, epcisname: epcisname, error: error });
+								res.render('error.jade', { user: req.user, epcisname: epcisname, error: JSON.stringify(error) });
 							} else {
 								res.redirect('/index');
 							}
@@ -144,7 +187,7 @@ exports.configure = function (app) {
 						var args = "{\"epcisfurnishergroupname\":\""+epcisfurnishergroupname+"\"}";
 						rest.postOperation(epcis_ac_api_address, "epcis/"+epcisname+"/furnish/group", null, req.user.token, null, args, function (error, response) {		
 							if (error) {
-								res.render('error.jade', { user: req.user, epcisname: epcisname, error: error });
+								res.render('error.jade', { user: req.user, epcisname: epcisname, error: JSON.stringify(error) });
 							} else {
 								res.redirect('/index');
 							}
@@ -181,13 +224,13 @@ exports.configure = function (app) {
 				var result1 = response.possessor;
 				rest.getOperation (epcis_ac_api_address, "user/"+username+"/epcis/"+epcisname+"/furnish", null, req.user.token, null, null, function (error, response) {
 					if (error) {
-						res.render('error.jade', { user: req.user, epcisname: epcisname, error: error });
+						res.render('error.jade', { user: req.user, epcisname: epcisname, error: JSON.stringify(error) });
 					} else {
 						var result2 = response.furnisher;
 						if (result1 === 'yes' || result2 === 'yes'){
 							rest.delOperation(epcis_ac_api_address, "unfurnepcis/"+epcisname+"/user/"+epcisfurnishername , null, req.user.token, null, args, function (error, response) {
 								if (error) {
-									res.render('error.jade', { user: req.user, epcisname: epcisname, epcisfurnishername:epcisfurnishername, error: error });
+									res.render('error.jade', { user: req.user, epcisname: epcisname, epcisfurnishername:epcisfurnishername, error: JSON.stringify(error) });
 								} else {
 									res.redirect('/index');
 								}
@@ -223,13 +266,13 @@ exports.configure = function (app) {
 				var result1 = response.possessor;
 				rest.getOperation (epcis_ac_api_address, "user/"+username+"/group/"+epcisfurnishergroupname+"/manage", null, req.user.token, null, null, function (error, response) {
 					if (error) {
-						res.render('error.jade', { user: req.user, epcisname: epcisname, error: error });
+						res.render('error.jade', { user: req.user, epcisname: epcisname, error: JSON.stringify(error) });
 					} else {
 						var result2 = response.manager;
 						if (result1 === 'yes' && result2 === 'yes')	{
 							rest.delOperation(epcis_ac_api_address, "unfurnepcis/"+epcisname+"/group/"+epcisfurnishergroupname , null, req.user.token, null, args, function (error, response) {
 								if (error) {
-									res.render('error.jade', { user: req.user, epcisname: epcisname, epcisfurnishergroupname:epcisfurnishergroupname, error: error });
+									res.render('error.jade', { user: req.user, epcisname: epcisname, epcisfurnishergroupname:epcisfurnishergroupname, error: JSON.stringify(error) });
 								} else {
 									res.redirect('/index');
 								}
@@ -315,7 +358,7 @@ exports.configure = function (app) {
 						
 						rest.postOperation(epcis_ac_api_address, "epcis/"+epcisname+"/subscribe", null, req.user.token, null, args, function (error, response) {		
 							if (error) {
-								res.render('error.jade', { user: req.user, epcisname: epcisname, error: error });
+								res.render('error.jade', { user: req.user, epcisname: epcisname, error: JSON.stringify(error) });
 							} else {
 								res.redirect('/index');
 							}
@@ -327,7 +370,7 @@ exports.configure = function (app) {
 						
 						rest.postOperation(epcis_ac_api_address, "epcis/"+epcisname+"/subscribe/group", null, req.user.token, null, args, function (error, response) {		
 							if (error) {
-								res.render('error.jade', { user: req.user, epcisname: epcisname, error: error });
+								res.render('error.jade', { user: req.user, epcisname: epcisname, error: JSON.stringify(error) });
 							} else {
 								res.redirect('/index');
 							}
@@ -363,13 +406,13 @@ exports.configure = function (app) {
 				var result1 = response.possessor;
 				rest.getOperation (epcis_ac_api_address, "user/"+username+"/epcis/"+req.params.epcisname+"/subscribe", null, req.user.token, null, null, function (error, response) {
 					if (error) {
-						res.render('error.jade', { user: req.user, epcisname: epcisname, error: error });
+						res.render('error.jade', { user: req.user, epcisname: epcisname, error: JSON.stringify(error) });
 					} else {
 						var result2 = response.subscriber;
 						if (result1 === 'yes' || result2 === 'yes'){
 							rest.delOperation(epcis_ac_api_address, "unsubsepcis/"+epcisname+"/user/"+epcissubscribername , null, req.user.token, null, args, function (error, response) {
 								if (error) {
-									res.render('subscribeepcis.jade', { user: req.user, epcisname: epcisname, epcissubscribers:epcissubscribers, epcissubscribername:epcissubscribername, error: error });
+									res.render('subscribeepcis.jade', { user: req.user, epcisname: epcisname, epcissubscribers:epcissubscribers, epcissubscribername:epcissubscribername, error: JSON.stringify(error) });
 								} else {
 									res.redirect('/index');
 								}
@@ -404,13 +447,13 @@ exports.configure = function (app) {
 				var result1 = response.possessor;
 				rest.getOperation (epcis_ac_api_address, "user/"+username+"/group/"+epcissubscribergroupname+"/manage", null, req.user.token, null, null, function (error, response) {
 					if (error) {
-						res.render('error.jade', { user: req.user, epcisname: epcisname, error: error });
+						res.render('error.jade', { user: req.user, epcisname: epcisname, error: JSON.stringify(error) });
 					} else {
 						var result2 = response.manager;
 						if (result1 === 'yes' && result2 === 'yes')	{
 							rest.delOperation(epcis_ac_api_address, "unsubsepcis/"+epcisname+"/group/"+epcissubscribergroupname , null, req.user.token, null, args, function (error, response) {
 								if (error) {
-									res.render('error.jade', { user: req.user, epcisname: epcisname, epcissubscribergroupname:epcissubscribergroupname, error: error });
+									res.render('error.jade', { user: req.user, epcisname: epcisname, epcissubscribergroupname:epcissubscribergroupname, error: JSON.stringify(error) });
 								} else {
 									res.redirect('/index');
 								}
@@ -443,10 +486,10 @@ exports.configure = function (app) {
 		var epcisname = req.params.epcisname;
 		rest.getOperation (epcis_ac_api_address, "user/"+req.user.email+"/epcis/"+epcisname+"/furnish", null, req.user.token, null, null, function (error, response) {
 			if (error) {
-				res.render('error.jade', { user: req.user, epcisname: epcisname, error: error });
+				res.render('error.jade', { user: req.user, epcisname: epcisname, error: JSON.stringify(error) });
 			} else {
 				if(response.furnisher === 'yes'){
-					res.render('captureevent.jade', { user: req.user, epcisname: epcisname, furnisher: response.furnisher, error: error });
+					res.render('captureevent.jade', { user: req.user, epcisname: epcisname, furnisher: response.furnisher, error: null });
 				} else {
 					res.render('error.jade', { user: req.user, epcisname: epcisname, error: 'no permission' });
 					
@@ -473,7 +516,7 @@ exports.configure = function (app) {
 
 		rest.postOperation(epcis_ac_api_address, "user/"+req.user.email+"/epcis/"+epcisname+"/capture", null, req.user.token, null, args, function (error, response) {
 			if (error) {
-				res.render('error.jade', { user: req.user, epcisname: epcisname, error: error });
+				res.render('error.jade', { user: req.user, epcisname: epcisname, error: JSON.stringify(error) });
 			} else {
 				res.redirect('/index');
 			}
@@ -497,7 +540,7 @@ exports.configure = function (app) {
 		var args = "{\"epcisevent\":\""+epcisevent+"\"}";
 		rest.postOperation(epcis_ac_api_address, "user/"+req.params.username+"/epcis/"+epcisname+"/token/"+clienttoken+"/apicapture", null, "", null, args, function (error, response) {
 			if (error) {
-				console.log(error);
+				console.log(JSON.stringify(error));
 				res.send(error);
 			} else {
 				res.send(response.result);
@@ -519,10 +562,10 @@ exports.configure = function (app) {
 	app.get('/qryepcis/:epcisname', auth.ensureAuthenticated, function(req, res){
 		rest.getOperation (epcis_ac_api_address, "user/"+req.user.email+"/epcis/"+req.params.epcisname+"/subscribe", null, req.user.token, null, null, function (error, response) {
 			if (error) {
-				res.render('error.jade', { user: req.user, epcisname: epcisname, error: error });
+				res.render('error.jade', { user: req.user, epcisname: epcisname, error: JSON.stringify(error) });
 			} else {
 				if(response.subscriber === 'yes'){
-					res.render('queryevent.jade', { user: req.user, epcisname: req.params.epcisname, subscriber: response.subscriber, error: error, epcisquery:'' });
+					res.render('queryevent.jade', { user: req.user, epcisname: req.params.epcisname, subscriber: response.subscriber, error: null, epcisquery:'' });
 				} else {
 					res.render('error.jade', { user: req.user, epcisname: req.params.epcisname, error: 'no permission'});
 				}
@@ -541,10 +584,10 @@ exports.configure = function (app) {
 	app.post('/qryepcis/:epcisname', auth.ensureAuthenticated, function(req, res){
 		rest.getOperationResNoJSON(epcis_ac_api_address, "user/"+req.user.email+"/epcis/"+req.params.epcisname+"/query?"+req.body.epcisquery, null, req.user.token, null, null, function (error, response) {
 			if (error) {
-				res.render('error.jade', { user: req.user, epcisname: req.params.epcisname, error: error});
+				res.render('error.jade', { user: req.user, epcisname: req.params.epcisname, error: JSON.stringify(error)});
 			} else {
 				var queryresult = (response.body).replace(/<n>/g, "\n").replace(/<r>/g, "\r").replace(/<t>/g, "&nbsp; &nbsp; &nbsp; &nbsp; ").replace(/<q>/g,"\"");
-				res.render('queryresult.jade', { user: req.user, epcisname: req.params.epcisname, error: error, epcisquery:queryresult });
+				res.render('queryresult.jade', { user: req.user, epcisname: req.params.epcisname, error: null, epcisquery:queryresult });
 			}
 		});
 	});
@@ -565,7 +608,7 @@ exports.configure = function (app) {
 		var epcisquery = jsonToQueryString(req.query);
 		rest.getOperationResNoJSON(epcis_ac_api_address, "user/"+req.params.username+"/epcis/"+req.params.epcisname+"/token/"+req.params.token+"/apiquery?"+epcisquery, null, "", null, null, function (error, response) {
 			if (error) {
-				res.render('error.jade', { user: req.user, epcisname: req.params.epcisname, error: error});
+				res.render('error.jade', { user: req.user, epcisname: req.params.epcisname, error: JSON.stringify(error)});
 			} else {
 				var queryresult = (response.body).replace(/<n>/g, "\n").replace(/<r>/g, "\r").replace(/<t>/g, "\t").replace(/<q>/g,"\"");
 				res.send( queryresult );
@@ -602,7 +645,7 @@ exports.configure = function (app) {
 		
 		rest.postOperation(epcis_ac_api_address, "user/"+req.user.email+"/manage", null, req.user.token, null, args, function (error, response) {
 			if (error) {
-				res.render('addgroup.jade', {user: req.user, groupname:"", error: error});
+				res.render('addgroup.jade', {user: req.user, groupname:"", error: JSON.stringify(error)});
 			} else {
 				res.redirect('/index');
 			}
@@ -622,7 +665,7 @@ exports.configure = function (app) {
 		var args = "{\"groupname\":\""+groupname+"\"}";
 		rest.delOperation(epcis_ac_api_address, "user/"+req.user.email+"/unmanage", null, req.user.token, null, args, function (error, response) {
 			if (error) {
-				res.render('error.jade', { user: req.user, groupname: groupname, error: error });
+				res.render('error.jade', { user: req.user, groupname: groupname, error: JSON.stringify(error) });
 			} else {
 				res.redirect('/index');
 			}
@@ -642,9 +685,9 @@ exports.configure = function (app) {
 		var args = "{\"managername\":\""+req.user.email+"\"}";
 		rest.getOperation(epcis_ac_api_address, "group/"+groupname+"/join", null, req.user.token, null, args, function (error, response) {
 			if (error)	{
-				res.render('error.jade', {  user: req.user, error: error });
+				res.render('error.jade', {  user: req.user, error: JSON.stringify(error) });
 			}else {
-				res.render('editgroup.jade', { user: req.user, groupname: groupname, users: response.users, error: error });
+				res.render('editgroup.jade', { user: req.user, groupname: groupname, users: response.users, error: null });
 			}
 		});
 	});
@@ -664,7 +707,7 @@ exports.configure = function (app) {
 		var epcissubss = null;
 		rest.getOperation(epcis_ac_api_address, "user/"+username+"/joinedgroup/"+joinedgroupname+"/member", null, req.user.token, null, null, function (error, response) {
 			if (error) {
-				res.render('error.jade', { user: req.user, joinedgroupname: joinedgroupname, error: error });
+				res.render('error.jade', { user: req.user, joinedgroupname: joinedgroupname, error: JSON.stringify(error) });
 			} else {
 				if(response.member === 'yes'){
 					rest.getOperation(epcis_ac_api_address, "joinedgroup/"+joinedgroupname+"/furnish", null, req.user.token, null, null, function (error, response) {
@@ -679,7 +722,7 @@ exports.configure = function (app) {
 							} else if (!error) {
 								error = "invalid JSON returned from FindZones";
 							}
-							res.render('joinedgroup.jade', { user: req.user, joinedgroupname: joinedgroupname, epcisfurns:epcisfurns, epcissubss:epcissubss, error: error });
+							res.render('joinedgroup.jade', { user: req.user, joinedgroupname: joinedgroupname, epcisfurns:epcisfurns, epcissubss:epcissubss, error: null });
 						});
 					});
 				}else {
@@ -701,7 +744,11 @@ exports.configure = function (app) {
 		var groupname = req.params.groupname;
 		var args = "{\"managername\":\""+req.user.email+"\"}";
 		rest.getOperation(epcis_ac_api_address, "group/"+groupname+"/other", null, req.user.token, null, args, function (error, response) {
-			res.render('adduser.jade', { user: req.user, groupname: groupname, others: response.others, error: error });
+			if (error) {
+				res.render('error.jade', { user: req.user, error: JSON.stringify(error) });
+			}else{
+				res.render('adduser.jade', { user: req.user, groupname: groupname, others: response.others, error: null });
+			}
 		});
 	});
 	
@@ -719,7 +766,7 @@ exports.configure = function (app) {
 		var args = "{\"username\":\""+username+"\",\"managername\":\""+req.user.email+"\"}";
 		rest.postOperation(epcis_ac_api_address, "group/"+groupname+"/join", null, req.user.token, null, args, function (error, response) {
 			if (error) {
-				res.render('error.jade', { user: req.user, groupname: groupname, error: error });
+				res.render('error.jade', { user: req.user, groupname: groupname, error: JSON.stringify(error) });
 			} else {
 				res.redirect('/group/'+groupname);
 			}
@@ -740,7 +787,7 @@ exports.configure = function (app) {
 		var args = "{\"username\":\""+username+"\",\"managername\":\""+req.user.email+"\"}";
 		rest.postOperation(epcis_ac_api_address, "group/"+groupname+"/unjoin", null, req.user.token, null, args, function (error, response) {
 			if (error) {
-				res.render('error.jade', { user: req.user, groupname: groupname, error: error });
+				res.render('error.jade', { user: req.user, groupname: groupname, error: JSON.stringify(error) });
 			} else {
 				res.redirect('/group/'+groupname);
 			}
@@ -768,7 +815,7 @@ exports.configure = function (app) {
 		var args = "{\"accesstoken\":\""+accesstoken+"\",\"clienttoken\":\""+clienttoken+"\"}";
 		rest.postOperation(epcis_ac_api_address, "user/"+username+"/adopt", null, req.user.token, null, args, function (error, response) {
 			if (error) {
-				res.render('error.jade', { user: req.user, error: error });
+				res.render('error.jade', { user: req.user, error: JSON.stringify(error) });
 			} else {
 				res.redirect('/index');
 			}
@@ -820,11 +867,11 @@ exports.configure = function (app) {
 							return res.render('error.jade', { user: req.user, error: error1 });
 						} else {
 							clienttoken = response1.result;
-							return res.render('index.jade', { user: req.user, offset: offset, count: count, epciss:epciss, epcisfurns:epcisfurns, epcissubss:epcissubss, groups: groups, joinedgroups:joinedgroups, myaccesstoken:myaccesstoken, clienttoken: clienttoken, error: error });
+							return res.render('index.jade', { user: req.user, offset: offset, count: count, epciss:epciss, epcisfurns:epcisfurns, epcissubss:epcissubss, groups: groups, joinedgroups:joinedgroups, myaccesstoken:myaccesstoken, clienttoken: clienttoken, error: null });
 						}
 					});
 				}else{
-					return res.render('index.jade', { user: req.user, offset: offset, count: count, epciss:epciss, epcisfurns:epcisfurns, epcissubss:epcissubss, groups: groups, joinedgroups:joinedgroups, myaccesstoken:myaccesstoken, clienttoken: clienttoken, error: error });
+					return res.render('index.jade', { user: req.user, offset: offset, count: count, epciss:epciss, epcisfurns:epcisfurns, epcissubss:epcissubss, groups: groups, joinedgroups:joinedgroups, myaccesstoken:myaccesstoken, clienttoken: clienttoken, error: null });
 				}
 			} else if (!error) {
 				return res.render('error.jade', {user: req.user, error:'OAuth: Authentication failed. Invalid token.'});
