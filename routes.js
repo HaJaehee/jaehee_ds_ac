@@ -71,6 +71,7 @@ exports.configure = function (app) {
 	 * lovesm135@kaist.ac.kr
 	 * created
 	 * 2016.11.29
+	 * 
 	 */
 	app.get('/editepcis/:epcisname', auth.ensureAuthenticated, function(req, res){
 		var epcisname = req.params.epcisname;
@@ -92,6 +93,7 @@ exports.configure = function (app) {
 	 * lovesm135@kaist.ac.kr
 	 * created
 	 * 2016.11.29
+	 * 
 	 */ 
 	app.post('/editepcis/:epcisname', auth.ensureAuthenticated, function(req, res){
 		var username = req.user.email;
