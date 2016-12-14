@@ -34,7 +34,8 @@ exports.configure = function (app) {
 	 */ 
 	app.post('/addepcis', auth.ensureAuthenticated, function(req, res){
 		var epcisname = req.body.epcisname;
-		var args = "{\"epcisname\":\""+epcisname+"\"}";
+		var epcisurl = req.body.epcisurl
+		var args = "{\"epcisname\":\""+epcisname+"\",\"epcisurl\":\""+epcisurl+"\"}";
 		
 		rest.postOperation(epcis_ac_api_address, "user/"+req.user.email+"/possess", null, req.user.token, null, args, function (error, response) {
 			if (error) {

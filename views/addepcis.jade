@@ -11,8 +11,10 @@ block mainContent
 	
 	form(method='post')
 		div(class='listRow')
-			label EPCIS to add:
+			label EPCIS Name to add:
 				input(name='epcisname', value='#{epcisname}')
+				label EPCIS URL:
+				input(name='epcisurl', value='127.0.0.1:8080')
 	
 		div.formFooter
 			input(type='submit', value='Add')
