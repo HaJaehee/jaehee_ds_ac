@@ -19,7 +19,7 @@ Group Role Based Access Control for EPCIS Access Authorization is implemented.<b
 ###3.0.0:
 EPCIS URL management is implemented.<br/>
 ###4.0.0:
-'Accessible for users' permission is implemented<br/>
+'Accessible for users' permission is implemented.<br/>
 
 
 ## Usage
