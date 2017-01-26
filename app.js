@@ -61,9 +61,9 @@ var httpServer = http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
 
-var httpsServer = https.createServer(options, app).listen(app.get('port2'), function(){
-	console.log('HTTPS server listening on port ' + app.get('port2'));
-})
+//var httpsServer = https.createServer(options, app).listen(app.get('port2'), function(){
+//	console.log('HTTPS server listening on port ' + app.get('port2'));
+//})
 
 var io = require('socket.io').listen(httpServer);
 

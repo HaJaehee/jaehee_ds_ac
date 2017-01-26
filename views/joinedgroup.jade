@@ -19,3 +19,10 @@ block mainContent
 		each epcissubs in epcissubss
 			li.listRow= epcissubs + ' '
 				a(href='/qryepcis/#{epcissubs}', class='button small  edit') query	
+				
+		p Showing users whom group can access.
+		
+		each accessibleuser in accessibleusers
+			li.listRow= accessibleuser + ' '
+			
+		p

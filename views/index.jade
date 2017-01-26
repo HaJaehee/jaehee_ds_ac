@@ -61,7 +61,6 @@ block mainContent
 					
 		p Showing groups where you are a member.  
 		
-		p
 			
 		each joinedgroup in joinedgroups
 			if(joinedgroup != (user.email +':public'))
@@ -69,3 +68,30 @@ block mainContent
 					if (joinedgroup != (user.email +':public'))
 						a(href='./joinedgroup/#{joinedgroup}', class='button small  edit') enter			
 		
+				
+		p Showing users who can access you.
+		
+		p
+			a(href='/addaccessibleuser', class='button small green') + add new user
+		
+		each accessibleuser in accessibleusers
+			li.listRow= accessibleuser + ' '
+				a(href='/resetaccessibleuser/#{accessibleuser}', onclick='return confirm(\'Are you sure that you want to let this user do not access you?\');', class='button small  delete') cancel
+				
+		
+		p Showing groups who can access you.
+		
+		p
+			a(href='/addaccessiblegroup', class='button small green') + add new group
+		
+		each accessiblegroup in accessiblegroups
+			li.listRow= accessiblegroup + ' '
+				a(href='/resetaccessiblegroup/#{accessiblegroup}', onclick='return confirm(\'Are you sure that you want to let this group do not access you?\');', class='button small  delete') cancel
+			
+		
+		p Showing users whom you can access.
+		
+		each accessuser in accessusers
+			li.listRow= accessuser + ' '
+			
+		p

@@ -475,6 +475,132 @@ exports.configure = function (app) {
 	});
 	
 	//---subcribe features end---
+	
+	//---access features---
+	/** 
+	 * get /addaccessibleuser
+	 * @creator Jaehee Ha 
+	 * lovesm135@kaist.ac.kr
+	 * created
+	 * 2017.01.26
+	 * 
+	 */ 
+	
+	app.get('/addaccessibleuser', auth.ensureAuthenticated, function(req, res){
+		
+		rest.getOperation(epcis_ac_api_address, "addaccessibleuser/"+req.user.email+"/other", null, req.user.token, null, null, function (error, response) {
+			if (error) {
+				res.render('error.jade', { user: req.user, error: JSON.stringify(error) });
+			}else{
+				res.render('addaccessibleuser.jade', { user: req.user, others: response.others, error: null });
+			}
+		});
+	});
+	
+	/** 
+	 * post /addaccessibleuser
+	 * @creator Jaehee Ha 
+	 * lovesm135@kaist.ac.kr
+	 * created
+	 * 2017.01.26
+	 * 
+	 */ 
+	
+	app.post('/addaccessibleuser', auth.ensureAuthenticated, function(req, res){
+		
+		var args = "{\"username\":\""+req.user.email+"\"}";
+		rest.postOperation(epcis_ac_api_address, "addaccessibleuser/"+req.body.username, null, req.user.token, null, args, function (error, response) {
+			if (error) {
+				res.render('error.jade', { user: req.user, error: JSON.stringify(error) });
+			}else{
+				res.redirect('/index');
+			}
+		});
+	});
+	
+	/** 
+	 * get /resetaccessibleuser/:accessibleusername
+	 * @creator Jaehee Ha 
+	 * lovesm135@kaist.ac.kr
+	 * created
+	 * 2017.01.26
+	 * 
+	 */
+	
+	app.get('/resetaccessibleuser/:accessibleusername', auth.ensureAuthenticated, function(req, res){
+		var args = "{\"username\":\""+req.user.email+"\"}";
+		rest.delOperation(epcis_ac_api_address,"resetaccessibleuser/"+req.params.accessibleusername, null, req.user.token, null, args, function (error, response) {
+			if (error) {
+				res.render('error.jade', { user: req.user, error: JSON.stringify(error) });
+			}else{
+				res.redirect('/index');
+			}
+		});
+	});
+	
+	/** 
+	 * get /addaccessiblegroup
+	 * @creator Jaehee Ha 
+	 * lovesm135@kaist.ac.kr
+	 * created
+	 * 2017.01.26
+	 * 
+	 */
+	
+	app.get('/addaccessiblegroup', auth.ensureAuthenticated, function(req, res){
+		
+		rest.getOperation(epcis_ac_api_address, "addaccessiblegroup/"+req.user.email+"/othergroup", null, req.user.token, null, null, function (error, response) {
+			if (error) {
+				res.render('error.jade', { user: req.user, error: JSON.stringify(error) });
+			}else{
+				res.render('addaccessiblegroup.jade', { user: req.user, othersgroup: response.othersgroup, error: null });
+			}
+		});
+	});
+	
+	/** 
+	 * post /addaccessiblegroup
+	 * @creator Jaehee Ha 
+	 * lovesm135@kaist.ac.kr
+	 * created
+	 * 2017.01.26
+	 * 
+	 */
+
+	app.post('/addaccessiblegroup', auth.ensureAuthenticated, function(req, res){
+		
+		var args = "{\"username\":\""+req.user.email+"\"}";
+		rest.postOperation(epcis_ac_api_address, "addaccessiblegroup/"+req.body.groupname, null, req.user.token, null, args, function (error, response) {
+			if (error) {
+				res.render('error.jade', { user: req.user, error: JSON.stringify(error) });
+			}else{
+				res.redirect('/index');
+			}
+		});
+	});
+	
+	/** 
+	 * get /resetaccessiblegroup/:accessiblegroupname
+	 * @creator Jaehee Ha 
+	 * lovesm135@kaist.ac.kr
+	 * created
+	 * 2017.01.26
+	 * 
+	 */
+	
+	app.get('/resetaccessiblegroup/:accessiblegroupname', auth.ensureAuthenticated, function(req, res){
+		var args = "{\"username\":\""+req.user.email+"\"}";
+		rest.delOperation(epcis_ac_api_address,"resetaccessiblegroup/"+req.params.accessiblegroupname, null, req.user.token, null, args, function (error, response) {
+			if (error) {
+				res.render('error.jade', { user: req.user, error: JSON.stringify(error) });
+			}else{
+				res.redirect('/index');
+			}
+		});	
+	});
+	
+	//---access features end---
+	
 	//---capture features---
 	
 	/** 
@@ -845,6 +971,8 @@ exports.configure = function (app) {
 	 * 2016.11.09
 	 * added client token features
 	 * 2016.11.14
+	 * addes access features
+	 * 
 	 */ 
 	app.get('/index', auth.ensureAuthenticated, function(req, res){
 		var offset = req.param('offset', 0);
@@ -856,14 +984,21 @@ exports.configure = function (app) {
 			var groups = null;
 			var joinedgroups = null;
 			var myaccesstoken = null;
+			var accessibleusers = null;
+			var accessiblegroups = null;
 			var clienttoken = null;
-			if (!error && response !== null && response.epciss.length !== null && response.epciss !== null && response.epcisfurns.length !== null && response.epcisfurns !== null && response.epcissubss.length !== null && response.epcissubss !== null && response.groups.length !== null && response.groups !== null && response.joinedgroups.length !== null && response.joinedgroups !== null) { 
+			var accessusers = null;
+			if (!error && response !== null && response.epciss.length !== null && response.epciss !== null && response.epcisfurns.length !== null && response.epcisfurns !== null && response.epcissubss.length !== null && response.epcissubss !== null && response.groups.length !== null && response.groups !== null && response.joinedgroups.length !== null && response.joinedgroups !== null && response.accessibleusers.length !== null && response.accessibleusers !== null && response.accessiblegroups.length !== null && response.accessiblegroups !== null && response.accessusers.length !== null && response.accessusers !== null) { 
 				epciss = response.epciss;
 				epcisfurns = response.epcisfurns;
 				epcissubss = response.epcissubss;
 				groups = response.groups;
 				joinedgroups = response.joinedgroups;
 				myaccesstoken = req.user.token;
+				accessibleusers = response.accessibleusers;
+				accessiblegroups = response.accessiblegroups;
+				accessusers = response.accessusers;
+				
 				clienttoken = response.clienttoken;
 				if (clienttoken == null){
 					var args = "{\"accesstoken\":\""+req.user.token+"\",\"clienttoken\":\"\"}";
@@ -872,11 +1007,11 @@ exports.configure = function (app) {
 							return res.render('error.jade', { user: req.user, error: error1 });
 						} else {
 							clienttoken = response1.result;
-							return res.render('index.jade', { user: req.user, offset: offset, count: count, epciss:epciss, epcisfurns:epcisfurns, epcissubss:epcissubss, groups: groups, joinedgroups:joinedgroups, myaccesstoken:myaccesstoken, clienttoken: clienttoken, error: null });
+							return res.render('index.jade', { user: req.user, offset: offset, count: count, epciss:epciss, epcisfurns:epcisfurns, epcissubss:epcissubss, groups: groups, joinedgroups:joinedgroups, myaccesstoken:myaccesstoken, clienttoken: clienttoken, accessibleusers:accessibleusers, accessiblegroups:accessiblegroups, accessusers:accessusers, error: null });
 						}
 					});
 				}else{
-					return res.render('index.jade', { user: req.user, offset: offset, count: count, epciss:epciss, epcisfurns:epcisfurns, epcissubss:epcissubss, groups: groups, joinedgroups:joinedgroups, myaccesstoken:myaccesstoken, clienttoken: clienttoken, error: null });
+					return res.render('index.jade', { user: req.user, offset: offset, count: count, epciss:epciss, epcisfurns:epcisfurns, epcissubss:epcissubss, groups: groups, joinedgroups:joinedgroups, myaccesstoken:myaccesstoken, clienttoken: clienttoken, accessibleusers:accessibleusers, accessiblegroups:accessiblegroups, accessusers:accessusers, error: null });
 				}
 			} else if (!error) {
 				return res.render('error.jade', {user: req.user, error:'OAuth: Authentication failed. Invalid token.'});
