@@ -836,6 +836,7 @@ exports.configure = function (app) {
 		var username = req.user.email;
 		var epcisfurns = null;
 		var epcissubss = null;
+		var accessusers = null;
 		rest.getOperation(epcis_ac_api_address, "user/"+username+"/joinedgroup/"+joinedgroupname+"/member", null, req.user.token, null, null, function (error, response) {
 			if (error) {
 				res.render('error.jade', { user: req.user, joinedgroupname: joinedgroupname, error: JSON.stringify(error) });
@@ -853,7 +854,14 @@ exports.configure = function (app) {
 							} else if (!error) {
 								error = "invalid JSON returned from FindZones";
 							}
-							res.render('joinedgroup.jade', { user: req.user, joinedgroupname: joinedgroupname, epcisfurns:epcisfurns, epcissubss:epcissubss, error: null });
+							rest.getOperation(epcis_ac_api_address, "joinedgroup/"+joinedgroupname+"/access", null, req.user.token, null, null, function (error, response) {
+								if (!error && response !== null && response.accessusers.length !== null && response.accessusers !== null) { 
+									accessusers = response.accessusers;
+								} else if (!error) {
+									error = "invalid JSON returned from FindZones";
+								}
+								res.render('joinedgroup.jade', { user: req.user, joinedgroupname: joinedgroupname, epcisfurns:epcisfurns, epcissubss:epcissubss, accessusers:accessusers, error: null });
+							});
 						});
 					});
 				}else {
