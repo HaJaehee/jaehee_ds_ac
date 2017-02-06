@@ -76,7 +76,8 @@ block mainContent
 		
 		each accessibleuser in accessibleusers
 			li.listRow= accessibleuser + ' '
-				a(href='/resetaccessibleuser/#{accessibleuser}', onclick='return confirm(\'Are you sure that you want to let this user do not access you?\');', class='button small  delete') cancel
+				if (accessibleuser != user.email)
+					a(href='/resetaccessibleuser/#{accessibleuser}', onclick='return confirm(\'Are you sure that you want to let this user do not access you?\');', class='button small  delete') cancel
 				
 		
 		p Showing groups who can access you.
